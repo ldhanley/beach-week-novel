@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="classic-serif" data-mode="paged">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Read Beach Week, a coming-of-age novel by Luke Hanley, set in Pensacola, Florida, in June 1990.">
+<title>Beach Week — A Novel by Luke Hanley</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+/* ---------- Theme variable sets ---------- */
+html[data-theme="classic-serif"] {
+  --bg:#f7f1e5; --fg:#27363b; --muted:#64716e; --accent:#c86645; --link:#176e78; --heading:#173740;
+  --sidebar-bg:#173740; --sidebar-fg:#c4d2cc; --sidebar-fg-hover:#fff9ed; --sidebar-active:#214b50;
+  --font-body: Georgia, 'Times New Roman', Times, serif; --font-ui: -apple-system, 'Segoe UI', sans-serif;
+  --divider:#ddd8cd; --code-bg:#efece3; --code-fg:#2b2b2b; --blockquote:#5a5a52; --align:justify;
+}
+html[data-theme="modern-minimalist"] {
+  --bg:#ffffff; --fg:#1a1a1a; --muted:#666; --accent:#444; --link:#2b6cb0; --heading:#1a1a1a;
+  --sidebar-bg:#ffffff; --sidebar-fg:#666; --sidebar-fg-hover:#1a1a1a; --sidebar-active:#f3f3f3;
+  --font-body: Georgia, 'Times New Roman', serif; --font-ui: 'Segoe UI', -apple-system, sans-serif;
+  --divider:#eee; --code-bg:#f4f4f4; --code-fg:#1a1a1a; --blockquote:#444; --align:left;
+}
+html[data-theme="dark-academic"] {
+  --bg:#14161a; --fg:#cfc9ba; --muted:#8f8878; --accent:#c9a86a; --link:#c9a86a; --heading:#f1ece0;
+  --sidebar-bg:#0c0d10; --sidebar-fg:#8f8878; --sidebar-fg-hover:#c9a86a; --sidebar-active:#1b1d22;
+  --font-body: 'Palatino Linotype', 'Book Antiqua', Georgia, serif; --font-ui: -apple-system, 'Segoe UI', sans-serif;
+  --divider:#23262c; --code-bg:#1c1e23; --code-fg:#cfc9ba; --blockquote:#c9a86a; --align:justify;
+}
+html[data-theme="warm-paperback"] {
+  --bg:#f4ecd8; --fg:#3a2f22; --muted:#6b5636; --accent:#8a5a2b; --link:#6b4520; --heading:#3a2f22;
+  --sidebar-bg:#f4ecd8; --sidebar-fg:#8a5a2b; --sidebar-fg-hover:#3a2f22; --sidebar-active:#e8dcc0;
+  --font-body: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif; --font-ui: -apple-system, 'Segoe UI', sans-serif;
+  --divider:#d8c9a3; --code-bg:#ece0c4; --code-fg:#3a2f22; --blockquote:#8a5a2b; --align:justify;
+}
+html[data-theme="technical-manual"] {
+  --bg:#fbfbfc; --fg:#2a3444; --muted:#758196; --accent:#2b5797; --link:#2b5797; --heading:#12202f;
+  --sidebar-bg:#eef1f5; --sidebar-fg:#3a4658; --sidebar-fg-hover:#2b5797; --sidebar-active:#dde6f2;
+  --font-body: 'Segoe UI', -apple-system, Helvetica, Arial, sans-serif; --font-ui: 'Consolas', 'SFMono-Regular', monospace;
+  --divider:#dde2e8; --code-bg:#eef1f5; --code-fg:#2a3444; --blockquote:#2b5797; --align:left;
+}
+html[data-theme="editorial-magazine"] {
+  --bg:#ffffff; --fg:#1a1a1a; --muted:#555; --accent:#c0392b; --link:#a5281b; --heading:#1a1a1a;
+  --sidebar-bg:#ffffff; --sidebar-fg:#555; --sidebar-fg-hover:#c0392b; --sidebar-active:#faf2f0;
+  --font-body: Georgia, 'Times New Roman', serif; --font-ui: 'Segoe UI', -apple-system, sans-serif;
+  --divider:#1a1a1a; --code-bg:#f4f4f4; --code-fg:#1a1a1a; --blockquote:#c0392b; --align:left;
+}
+
+/* ---------- Base layout ---------- */
+body {
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body);
+  font-size:18px; line-height:1.78; -webkit-font-smoothing:antialiased;
+  transition: background .2s, color .2s;
+}
+.skip-link {
+  position:absolute; left:8px; top:-60px; background:var(--heading); color:var(--bg);
+  padding:10px 16px; border-radius:4px; z-index:1000; font-family:var(--font-ui); font-size:13px;
+  text-decoration:none; transition: top .15s;
+}
+.skip-link:focus { top:8px; }
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+/* paragraph highlighted by Read Aloud; transition keeps it from flickering */
+.reading-aloud { background:rgba(255,220,0,0.28); border-radius:3px; transition:background .15s; }
+[data-theme="dark-academic"] .reading-aloud { background:rgba(255,220,0,0.18); }
+[data-theme="technical-manual"] .reading-aloud { background:rgba(0,180,255,0.18); }
+
+/* ---------- Progress bar ---------- */
+#progressBar { position:fixed; top:0; left:0; height:3px; background:var(--accent); z-index:210; width:0%; transition: width .2s ease; }
+
+nav#toc {
+  position:fixed; top:0; left:0; width:250px; height:100vh; overflow-y:auto;
+  background:var(--sidebar-bg); color:var(--sidebar-fg); font-family:var(--font-ui);
+  font-size:12.5px; line-height:1.4; z-index:100; border-right:1px solid var(--divider);
+  transition: transform .25s ease;
+}
+nav#toc::-webkit-scrollbar { width:4px; }
+nav#toc::-webkit-scrollbar-thumb { background:var(--divider); border-radius:2px; }
+.nav-book-title {
+  padding:22px 18px 18px; font-size:11.5px; font-weight:700; color:var(--sidebar-fg-hover);
+  letter-spacing:.06em; text-transform:uppercase; border-bottom:1px solid var(--divider); margin-bottom:8px;
+}
+nav#toc ul { list-style:none; padding:0 0 32px; margin:0; }
+nav#toc ul li.sec {
+  padding:14px 18px 3px; font-size:9.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent);
+}
+nav#toc ul li a { display:block; padding:5px 18px; color:var(--sidebar-fg); text-decoration:none; border-left:3px solid transparent; }
+nav#toc ul li a:hover { color:var(--sidebar-fg-hover); background:var(--sidebar-active); }
+nav#toc ul li a.active { color:var(--sidebar-fg-hover); background:var(--sidebar-active); border-left-color:var(--accent); font-weight:700; }
+
+header#topbar {
+  display:none; position:sticky; top:0; z-index:90; background:var(--bg);
+  border-bottom:1px solid var(--divider); padding:16px 24px; align-items:center; justify-content:space-between;
+  font-family:var(--font-ui); gap:12px;
+}
+header#topbar .topbar-title { font-size:13px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--heading); }
+header#topbar button#tocToggle {
+  background:none; border:1px solid var(--divider); color:var(--fg); padding:8px 14px; border-radius:4px;
+  font-family:var(--font-ui); font-size:13px; cursor:pointer;
+}
+#tocOverlay {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:95;
+}
+#tocOverlay.open { display:block; }
+
+main { margin-left:250px; max-width:720px; padding:80px 60px 140px; }
+main:focus { outline:none; }
+
+.kicker, .part-kicker { font-family:var(--font-ui); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin:0 0 14px; font-weight:700; }
+h1 { font-size:32px; font-weight:400; color:var(--heading); margin:0 0 30px; line-height:1.2; }
+.chapter-title { font-size:34px; margin-bottom:10px; }
+.part-title { font-size:38px; text-align:center; }
+.ch-label { display:block; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; font-family:var(--font-ui); font-weight:700; }
+p.meta { font-family:var(--font-ui); font-size:12px; color:var(--muted); margin:0 0 26px; text-transform:uppercase; letter-spacing:.06em; }
+h2 { font-size:22px; font-weight:400; margin:46px 0 18px; color:var(--heading); border-bottom:1px solid var(--divider); padding-bottom:8px; }
+h3 { font-size:18px; margin:32px 0 14px; color:var(--heading); }
+p {
+  margin:0 0 20px; text-align:var(--align); color:var(--fg);
+  hyphens:auto; -webkit-hyphens:auto; -ms-hyphens:auto; overflow-wrap:break-word;
+}
+p.opening:first-letter { color:var(--accent); }
+a { color:var(--link); }
+blockquote { margin:30px 0; padding:4px 0 4px 22px; border-left:4px solid var(--accent); color:var(--blockquote); font-style:italic; }
+pre {
+  background:var(--code-bg); color:var(--code-fg); padding:16px 20px; border-radius:6px;
+  overflow-x:auto; -webkit-overflow-scrolling:touch; margin:24px 0;
+  font-family:'Consolas','SFMono-Regular',monospace; font-size:14px; line-height:1.6;
+}
+code { font-family:'Consolas','SFMono-Regular',monospace; }
+ul, ol { margin:0 0 20px; padding-left:26px; }
+li { margin-bottom:8px; }
+
+.title-page { text-align:center; }
+.title-page .book-cover { max-width:320px; width:100%; height:auto; display:block; margin:0 auto 44px; border-radius:4px; box-shadow:0 14px 40px rgba(0,0,0,.28); }
+.title-page .book-name { font-size:40px; margin-bottom:10px; }
+.title-page .book-subtitle { font-size:18px; color:var(--muted); margin-bottom:26px; }
+.title-page .book-author { font-size:15px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:60px; }
+.title-page h2 { text-align:left; }
+.title-page p { text-align:left; }
+.legal-disclosure { margin-top:50px; border-top:1px solid var(--divider); padding-top:24px; }
+.legal-disclosure summary {
+  cursor:pointer; font-family:var(--font-ui); font-size:13px; font-weight:700; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--muted); padding:6px 0;
+}
+.legal-disclosure[open] summary { color:var(--heading); margin-bottom:10px; }
+
+.part-divider { text-align:center; padding-top:60px; }
+.part-divider p { text-align:left; max-width:560px; margin-left:auto; margin-right:auto; }
+
+/* ---------- Decorative per-theme touches ---------- */
+html[data-theme="dark-academic"] h2 { font-style:italic; }
+html[data-theme="technical-manual"] .ch-label {
+  display:inline-block; color:#fff; background:var(--accent); padding:3px 10px; border-radius:3px;
+}
+html[data-theme="technical-manual"] h2 { border-bottom:none; border-left:3px solid var(--accent); padding-left:12px; padding-bottom:0; }
+html[data-theme="editorial-magazine"] .chapter-title, html[data-theme="editorial-magazine"] .part-title { font-weight:700; letter-spacing:-.01em; }
+html[data-theme="editorial-magazine"] blockquote { font-size:26px; line-height:1.35; border-left-width:6px; }
+html[data-theme="warm-paperback"] .part-title, html[data-theme="warm-paperback"] h1 { font-weight:400; }
+
+/* ---------- Layout variant: off-canvas sidebar for lighter themes ---------- */
+html[data-theme="modern-minimalist"] nav#toc,
+html[data-theme="warm-paperback"] nav#toc,
+html[data-theme="editorial-magazine"] nav#toc {
+  transform: translateX(-100%); box-shadow: 2px 0 24px rgba(0,0,0,.15);
+}
+html[data-theme="modern-minimalist"] nav#toc.open,
+html[data-theme="warm-paperback"] nav#toc.open,
+html[data-theme="editorial-magazine"] nav#toc.open { transform: translateX(0); }
+html[data-theme="modern-minimalist"] main,
+html[data-theme="warm-paperback"] main,
+html[data-theme="editorial-magazine"] main { margin-left:0; max-width:700px; margin-left:auto; margin-right:auto; }
+html[data-theme="modern-minimalist"] header#topbar,
+html[data-theme="warm-paperback"] header#topbar,
+html[data-theme="editorial-magazine"] header#topbar { display:flex; }
+html[data-theme="modern-minimalist"] #controls,
+html[data-theme="warm-paperback"] #controls,
+html[data-theme="editorial-magazine"] #controls { top:74px; }
+
+/* ---------- Reading mode: show one section at a time ---------- */
+html[data-mode="paged"] main > section { display:none; }
+html[data-mode="paged"] main > section.current-section { display:block; }
+html[data-mode="paged"] main { padding-top:110px; padding-bottom:120px; }
+
+.reading-nav {
+  display:none; position:fixed; left:250px; right:0; bottom:0; z-index:150;
+  background:var(--bg); border-top:1px solid var(--divider); padding:12px 24px;
+  align-items:center; justify-content:space-between; gap:12px; font-family:var(--font-ui);
+}
+html[data-mode="paged"] .reading-nav { display:flex; }
+.reading-nav.top { top:0; bottom:auto; border-top:none; border-bottom:1px solid var(--divider); }
+html[data-theme="modern-minimalist"] .reading-nav,
+html[data-theme="warm-paperback"] .reading-nav,
+html[data-theme="editorial-magazine"] .reading-nav { left:0; }
+html[data-theme="modern-minimalist"] .reading-nav.top,
+html[data-theme="warm-paperback"] .reading-nav.top,
+html[data-theme="editorial-magazine"] .reading-nav.top { top:58px; }
+.reading-nav button {
+  background:var(--sidebar-bg); color:var(--sidebar-fg-hover); border:1px solid var(--divider);
+  padding:10px 16px; border-radius:6px; font-size:13px; cursor:pointer; font-family:var(--font-ui);
+  max-width:38%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.reading-nav button:disabled { opacity:.35; cursor:default; }
+.reading-nav .reading-progress-text { font-size:12px; color:var(--muted); white-space:nowrap; }
+
+/* ---------- Mode toggle + theme picker controls ---------- */
+#controls { position:fixed; top:16px; right:16px; z-index:200; font-family:var(--font-ui); display:flex; gap:8px; }
+#controls button.control-btn {
+  background:var(--sidebar-bg); color:var(--sidebar-fg-hover); border:1px solid var(--divider);
+  padding:10px 16px; border-radius:20px; font-size:13px; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.15);
+}
+#readAloudBtn[aria-pressed="true"] { background:var(--accent); color:#fff; }
+#themePicker { position:relative; }
+#themeMenu {
+  display:none; position:absolute; top:44px; right:0; background:var(--bg); border:1px solid var(--divider);
+  border-radius:10px; padding:8px; min-width:190px; box-shadow:0 8px 30px rgba(0,0,0,.2);
+}
+#themeMenu.open { display:block; }
+#themeMenu button {
+  display:block; width:100%; text-align:left; background:none; border:none; color:var(--fg);
+  padding:9px 12px; font-size:13px; border-radius:6px; cursor:pointer; font-family:var(--font-ui);
+}
+#themeMenu button:hover { background:var(--sidebar-active); }
+#themeMenu button[aria-current="true"] { font-weight:700; color:var(--accent); }
+
+/* ---------- Back to top ---------- */
+#backToTop {
+  display:none; position:fixed; left:266px; bottom:24px; z-index:150;
+  background:var(--sidebar-bg); color:var(--sidebar-fg-hover); border:1px solid var(--divider);
+  width:42px; height:42px; border-radius:50%; cursor:pointer; font-size:16px; box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+#backToTop.visible { display:block; }
+html[data-mode="paged"] #backToTop { display:none !important; }
+html[data-theme="modern-minimalist"] #backToTop,
+html[data-theme="warm-paperback"] #backToTop,
+html[data-theme="editorial-magazine"] #backToTop { left:24px; }
+html[data-mode="paged"] #controls { top:70px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  nav#toc { transform: translateX(-100%); box-shadow: 2px 0 24px rgba(0,0,0,.2); }
+  nav#toc.open { transform: translateX(0); }
+  main, html[data-theme="modern-minimalist"] main, html[data-theme="warm-paperback"] main, html[data-theme="editorial-magazine"] main {
+    margin-left:0; padding:70px 24px 100px; max-width:100%;
+  }
+  header#topbar { display:flex !important; }
+  #controls { top:74px; }
+  .reading-nav { left:0 !important; }
+  .reading-nav.top,
+  html[data-theme="modern-minimalist"] .reading-nav.top,
+  html[data-theme="warm-paperback"] .reading-nav.top,
+  html[data-theme="editorial-magazine"] .reading-nav.top { top:58px; }
+  .reading-nav button { max-width:30%; }
+  html[data-mode="paged"] #controls { top:120px; }
+  #backToTop { left:auto; right:16px; bottom:16px; }
+  html[data-mode="paged"] main { padding-top:180px; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  nav#toc, header#topbar, #tocOverlay, #controls, .reading-nav, #backToTop, #progressBar, .skip-link { display:none !important; }
+  html[data-mode="paged"] main > section { display:block !important; }
+  main { margin-left:0; max-width:100%; padding:0 4%; }
+  body { background:#fff; color:#000; }
+  a { color:#000; text-decoration:underline; }
+  section { page-break-before: auto; }
+  .part-divider { page-break-before: always; }
+  .chapter { page-break-before: always; }
+  .title-page { page-break-after: always; }
+  .title-page .book-cover { box-shadow:none; max-width:260px; }
+  .legal-disclosure { display:block; }
+}
+
+main table { width:100%; border-collapse:collapse; display:block; overflow-x:auto; }
+main th, main td { padding:8px; border:1px solid var(--divider); }
+nav#toc.open { z-index:220; }
+#tocOverlay.open { z-index:215; }
+main pre { overflow-x:auto; }
+main math { max-width:100%; overflow-x:auto; }
+
+/* Beach Week book styling */
+.title-page .book-cover { max-width:360px; border-radius:2px; box-shadow:0 16px 42px rgba(23,55,64,.28); }
+.title-page .book-name { color:var(--heading); font-size:clamp(42px,8vw,64px); letter-spacing:-.04em; }
+.title-page .book-subtitle { text-align:center; color:var(--link); font-family:var(--font-ui); line-height:1.9; }
+.title-page .book-author { color:var(--accent); }
+.chapter { scroll-margin-top:24px; }
+.chapter .chapter-title { color:var(--heading); }
+.chapter .ch-label { color:var(--accent); }
+.scene-break { margin:32px 0; border:0; color:var(--accent); text-align:center; font-family:var(--font-ui); font-size:14px; letter-spacing:.14em; }
+@media (max-width:600px) {
+  .title-page .book-cover { max-width:min(82%,300px); }
+  .chapter .chapter-title { font-size:29px; }
+}
+
+</style>
+<script>
+(function(){
+  try {
+    var savedTheme = localStorage.getItem('book-theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+    var savedMode = localStorage.getItem('book-mode');
+    if (savedMode) document.documentElement.setAttribute('data-mode', savedMode);
+  } catch(e) {}
+})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div id="progressBar"></div>
+
+<nav id="toc">
+<div class="nav-book-title">Beach Week</div>
+<ul>
+<li><a href="#title-page" data-nav-link>Beach Week</a></li>
+<li><a href="#chapter-01" data-nav-link>Chapter 1: END OF SCHOOL</a></li>
+<li><a href="#chapter-02" data-nav-link>Chapter 2: THE LOFT</a></li>
+<li><a href="#chapter-03" data-nav-link>Chapter 3: DAY TWO</a></li>
+<li><a href="#chapter-04" data-nav-link>Chapter 4: GIRL’S BEACH HOUSE</a></li>
+<li><a href="#chapter-05" data-nav-link>Chapter 5: THE FIRST NIGHT</a></li>
+<li><a href="#chapter-06" data-nav-link>Chapter 6: TUESDAY MORNING</a></li>
+<li><a href="#chapter-07" data-nav-link>Chapter 7: WEDNESDAY MORNING</a></li>
+<li><a href="#chapter-08" data-nav-link>Chapter 8: END OF THE BEGINNING</a></li>
+<li><a href="#chapter-09" data-nav-link>Chapter 9: THURSDAY MORNING - THE AFTERMATH</a></li>
+<li><a href="#chapter-10" data-nav-link>Chapter 10: LIGHTS, CAMERA, BEACH WEEK!</a></li>
+</ul>
+</nav>
+
+<header id="topbar">
+  <button id="tocToggle" type="button" aria-label="Open table of contents">&#9776; Contents</button>
+  <span class="topbar-title">Beach Week</span>
+</header>
+<div id="tocOverlay"></div>
+
+<div id="controls">
+  <button id="modeToggle" type="button" class="control-btn">&#128214; Reading Mode: On</button>
+  <button id="readAloudBtn" type="button" class="control-btn" aria-pressed="false" hidden>&#128266; Read Aloud</button>
+  <div id="themePicker">
+    <button id="themeToggle" type="button" class="control-btn" aria-haspopup="true" aria-expanded="false">&#127912; Style</button>
+    <div id="themeMenu" role="menu">
+<button type="button" data-theme-choice="classic-serif">Classic Serif Library</button>
+<button type="button" data-theme-choice="modern-minimalist">Modern Minimalist</button>
+<button type="button" data-theme-choice="dark-academic">Dark Academic</button>
+<button type="button" data-theme-choice="warm-paperback">Warm Paperback</button>
+<button type="button" data-theme-choice="technical-manual">Technical Manual</button>
+<button type="button" data-theme-choice="editorial-magazine">Editorial Magazine</button>
+    </div>
+  </div>
+</div>
+
+<div class="reading-nav top">
+  <button type="button" data-reading-prev>&#8592; Start</button>
+  <span class="reading-progress-text" data-reading-progress>Section 1 of 1</span>
+  <button type="button" data-reading-next>End &#8594;</button>
+</div>
+
+<main id="main-content" tabindex="-1">
+
+<section class="title-page" id="title-page" data-label="Beach Week">
+<img class="book-cover" src="beach-week-cover-4.png" alt="Beach Week book cover: Dave almost didn't make Beach Week. Then everything changed. Pensacola, Florida, June 1990.">
+<h1 class="book-name">Beach Week</h1>
+<p class="book-subtitle">PENSACOLA<br>“The young are permanently in a state resembling intoxication”<br>Last week of childhood — First week of adulthood</p>
+<p class="book-author">A Novel by Luke Hanley</p>
+<p class="meta">The final high school beach party</p>
+</section>
+<section class="chapter" id="chapter-01" data-label="Chapter 1: END OF SCHOOL">
+<span class="ch-label">Chapter 1</span>
+<h1 class="chapter-title">END OF SCHOOL</h1>
+<p class="meta">“Learning is not child&#x27;s play; we cannot learn without pain.” - Aristotle</p>
+<p>Some kids love school; I was not one of them.  But there was a time at the very end that stands out.  It was a time of intense joy but also confusion, a time of realization that an end was near but also a beginning, and most importantly it was a time for all the hot girls in the school to dawn bikinis and head to the beach.  School was over, and the last few moments of our innocent youth were to be spent forming indelible memories, memories of Beach Week.</p>
+<p>More than two decades have passed since my high school days, and most of my memories of high school have faded.  But I remember every moment of Beach Week spent playing on the beach with friends from school.  I also remember the people that weren’t able to make it.  I was almost one of those people, but things fell into place for me in a most unexpected way.  My name is Dave and this is my story about my first few steps into adulthood and a glimpse behind the curtain for those who were unable to go to beach week.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>The week before graduation, Brandy’s mom finishes a phone call with her friend.  She calls for Brandy, “Brandy, come in here.”</p>
+<p>“What is it, Mom?  I will be right in.”</p>
+<p>“Some of the parents said that Tina’s mom is renting a beach house for next week.”</p>
+<p>Brandy pauses for a second and says, “Yeah, and she invited all the girls from class, all the girls that do well in school to stay there.”</p>
+<p>“Brandy, are you planning to stay there?”</p>
+<p>“Yes, but I will make sure that everybody is doing the right thing.”</p>
+<p>Brandy’s mom smiles and turns her head, “Honey, we’ve taught you everything we know about leading a good life.  One of the hardest things in life is learning how to deal with temptation, especially when you are young and there is peer pressure involved.  Just make sure that whatever decisions you make, you have a clear head, and that you make them with your future in mind.”</p>
+<p>Brandy feels a knot in her stomach.  She knows her mom is talking about beach week, but her thoughts are elsewhere.  She begins to smile thinking about sunning at the beach with Tina.</p>
+<p>“Now, Brandy, I trust that you will do the right thing, but I am not sure about all of your classmates.  I just want you to know that I will call the other parents to make sure that everything is okay.”</p>
+<p>Brandy nods her head and says, “Mom, I love you.  I’ve been very lucky to have such great parents.  Not only will I try to do the right thing, but I will also try to be an example for my classmates.”</p>
+<p>“Now, Brandy, you know that the quiet girl in the corner never inspired anybody.  Be yourself and trust yourself.  It is beach week, so have a good time.”</p>
+<p>The doorbell rings, “Mom, Justin is here.  I’ve got to go.”  Brandy turns and heads out the front door.</p>
+<p>Brandy’s mom closes her eyes and takes in a deep breath.  Eighteen years and nine months ago, she had her own beach week.  She then dials the phone to talk with Tina’s Mom but Tina answers.  “Hey Tina, this is Mrs. Myers.  May I please speak with your mother?”</p>
+<p>Tina yells, “Mom, Brandy’s mom is on the phone.”</p>
+<p>Brandy’s mom then says, “Thank you, Tina.”</p>
+<p>Then Tina’s mom picks up the phone, “Hey, we are having a get together when the kids are doing their project graduation stuff.  Come on over.”</p>
+<p>Brandy’s mom says, “Oh, that would be nice.  And I wanted to ask you about the beach house that you have rented.  That is so nice of you.  Is there anything I can do to help?”</p>
+<p>Tina’s mom says, “Oh, thank you, but I have everything covered, and I’ll make sure the kids act responsibly.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>All the lights go off but those on the small stage.  “My name is Virgil the Great.  I would like to call five volunteers from the audience.  Don’t be shy.”  He picks out three guys and two girls from my graduation class.  They head up to the stage and sit down facing the audience.  “I am going to hypnotize you but first want to tell you the benefits of hypnotism.  Before I take you out of the hypnotic state, I will give you a hypnotic suggestion improving your memory and level of peace.”  Tragedies have occurred involving graduating high school students in recent years.  To lessen the risk of doing something stupid, our school has sponsored an alcohol-free party the night of graduation.  That party is just getting underway at a nearby recreation center.</p>
+<p>One of the girls the Hypnotist picks is Amy.  Her parents are here as chaperons and enjoy their daughter’s predicament.  Amy is tall, beautiful, and athletic.  She’s been in most of my classes through high school, which is unfortunate.  I doubt she has a good impression of me, but she’s has always been nice to me and even mentioned something about being happy that we were friends.  It caught me by surprise, but it was a much welcomed surprise even if just a passing remark.</p>
+<p>“I will not ask you to do anything against your morals, but only wish to demonstrate the powers of the mind and body.”  The hypnotist holds up a shiny object and begins to talk softly to the people on the stage.  It’s the standard hypnotism act.  I expect he’ll make them act like chickens, but Virgil has something else in mind.</p>
+<p>He starts by putting the students to sleep, which appears just to be a state of relaxation.  Virgil then wakes up Jake.  Jake is the star athlete in the school.  He’s the quarterback of the football team,  leading home run hitter on the baseball team, and led the basketball team to state finals his Junior year.  He’s the guy that movies portray as someone you should hate, but instead he’s just a regular guy.</p>
+<p>“When I count to three, your seat will start to become hot.  It will continue getting hotter and hotter.  One, two, three.”</p>
+<p>Jake starts to shift around in his seat.</p>
+<p>“Is something wrong Jake?”</p>
+<p>“Yeah.  I am not sure, but is it getting hot in here?”  The audience laughs, but could it be real?  I’m still thinking this whole hypnotism thing is just a trick.</p>
+<p>“It’s getting hotter, even hotter.  Now it’s so hot.”  Jake jumps up out of his seats and looks back at the seat.</p>
+<p>“Is something wrong Jake?”</p>
+<p>“Yeah, the seat.  I think it’s on fire.”  The audience loves it.  This can’t be an act.  Jake is not that good of an actor.</p>
+<p>“Ok, Jake, the seat is no longer hot.  You can sit down.”  Jake looks down at the seat and then back at Virgil not trusting him.  He then sits down and appears relieved.</p>
+<p>“Give Jake a hand.”  The audience applauds and wants more.</p>
+<p>“Mike, when I count to three, the number ‘five’ will no longer exist.  When you count, ‘five’ will have disappeared.  One, two, three.”  Mike’s an enigma to me.  I’ve never had him in a class or even seen him at the school.</p>
+<p>“Mike, I’d like you to count all the fingers on your right hand.”</p>
+<p>“One, two, three, four, six.”  Mike looks confused.</p>
+<p>“Six?  Now, count the fingers on your left hand starting with six.”</p>
+<p>“Six, seven, eight, nine, ten.”  Mike again looks puzzled.</p>
+<p>“Ok, now count your fingers on both hands.”</p>
+<p>“One, two, three, four, six, seven, eight, nine, ten… eleven?”  He says this without any hesitation between four and six.</p>
+<p>“Eleven?  Now Mike, have you always had eleven fingers?”</p>
+<p>He shakes his head and says, “No.”  The audience laughs and Mike looks around confused which causes everyone to laugh again.</p>
+<p>Maybe this hypnotism stuff works.  If he can get someone to forget the number six, maybe he can get me to forget about my freshman year.  If that works, then my sophomore and junior years could come next.</p>
+<p>“Ok, Mike, the number ‘five’ now exists.  Give Mike a hand.”</p>
+<p>Virgil dismisses the two other students and then looks at Amy and asks her, Mike, and Jake a couple of questions.  Amy responds but what they are saying is not audible.  Mike and Jake get up and bring their chairs over to an open area and place the chairs facing each other.  Virgil then positions the chairs to have about a three foot separation.  My stomach starts to tighten.</p>
+<p>“For our final demonstration, we are going to explore the mind’s ability to control the body.  Amy, lie down on these chairs.”  Amy walks over and lies down with her shoulders on one chair and her ankles on the other.  Virgil then takes his shoes off.  I look over at Amy’s Mom.  She is near panic.  Amy’s Dad places his hand on her arm.</p>
+<p>“Your stomach muscles are getting tighter, tighter, they are becoming like steel.  Your muscles are so tight that they are steel.”</p>
+<p>Someone behind me says, “What’s he doing?  Is he going to stand on her?”</p>
+<p>Stand on her?  Of course he’s not going…</p>
+<p>Virgil the Great then proceeds to step onto Amy with both feet and stands straight up on her unsupported stomach.  Amy’s mother shouts “Get off my baby!”  Unfazed, Virgil continues standing on Amy and then after a few moments steps off.  The audience applauds but it is subdued.  This has to be the most amazing trick I’ve ever seen.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>After the show, we head over to the bowling alley.  I bowl with three friends and Amy bowls in the next lane with three of her friends.  A competition starts to form, but unfortunately we are competing to find out who is the worst at bowling.  The girls end up getting a higher score then us, but the boys win when Amy accidently drops the ball on her foot, which is a technical knockout in this type of competition.  She dissembles into uncontrollable giggles, which makes her impossible for men to resist.</p>
+<p>We guys then head to the basketball court to regain our manhood.  Basketball is a sport that not only requires skill and finesse but also strength and stamina.  It’s one of the best all around sports to play.  I’ve played on organized teams as a kid, but was too disengaged in high school to even try out for the team.  We split up into three man teams and play a half court game.  Some of the guys seem surprised that I can play.  Disengaged is too weak a word to explain my high school experience, massively depressed is closer to the mark.</p>
+<p>We finish up the game and stroll back to main building to dance with some of the girls who are dancing to music.  The senior prom was just a few weeks earlier, and it feels like the energy from the prom is back.  Amy even ends up dancing with me as the last song plays, and somehow I end up outside talking with her.</p>
+<p>“Dave, some of the girls are getting a beach house next week.  You’re welcome to stay with us.  Tina’s Mom was kind enough to rent it for us.”</p>
+<p>I smile and nod in appreciation.</p>
+<p>“We get the house on Monday.  See you there.”</p>
+<p>Then more classmates come out and small groups form with Amy disappearing into one of the groups.  Did she just invite me to stay with her and a bunch of girls for a week in a beach house?  My friend Aaron comes out of the building looking for me.  We’ve only become friends in the last year or so.  Like Mike, we never had a class together until this year.</p>
+<p>“Dave, can you give me a ride home?”</p>
+<p>“Sure, let’s go.”</p>
+<p>We head over to my car.  “I’m not sure why, but Amy invited me to stay at the girl’s beach house next week.”</p>
+<p>“That’s cool.  I’ve got to work all next week.  Need to save some money for college.  I might be able to swing by at night but plan on crashing at Alexander’s beach house this weekend.  Bring a sleeping bag.  We can crash together in their living room.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Also the day before, Alexander told his father that he was using Uncle Dominic’s beach house next week.  His Uncle is on the Board of County Commissioners and is a powerful figure in area politics.  Alexander has a negative controlling demeanor, which means he’ll either end up being the CEO of some major public corporation or succumbing to a major drug habit and living in some back alley.</p>
+<p>“Father, my friends and I are staying at the beach loft this week.”</p>
+<p>“Just make sure to fill up the Beemer this time.  You are entering adulthood and must learn responsibility.”</p>
+<p>“Could not the valet fill up the Beemer the next time he services it?”</p>
+<p>“Son, I must teach you to be a man.  Taking proper account of the fuel level in the Beemer is the first step towards that goal.”</p>
+<p>“Yes, Father, I understand.  Father, I am low on cash.  I only have five hundred dollars for this weekend.  May I have some additional spending money to purchase refreshments?”</p>
+<p>“The loft is fully stocked, but do not smoke all of Uncle Dominic’s stuff.  I may wish to run for office next year and do not wish to upset your Uncle.  In case you run low on funds, here is an additional five hundred dollars of pocket change for any immediate necessities.”</p>
+<p>“Thank you father, I will not disappoint you.”</p>
+<p>“You have never failed to disappoint me in the past.  If you do happen to end up in jail, call your cousin this time.  He should be able to fix it for you.”</p>
+<p>“This time will be different, Father.  I will be in charge of everything.  No one will exceed my authority.”</p>
+<p>“Let us hope not, son.  You must understand that a proper condescending attitude is critical to success in life, otherwise people will consider you of a lower class.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>On the drive back to Aaron’s place, I realize that this is the last time I will see most of my high school friends.  Those first awkward moments of freshman year seem like only yesterday. Every friend before was lost.  The lesson learned from my childhood was to only form weak bonds.  As soon as someone was my friend, they were gone forever.  Maybe my relationship with Aaron will be different.</p>
+<p>After a few minutes into the drive, Aaron says, “Come crash at my place tonight.  Steve is coming over.  We can stay up tonight and watch the sun rise over the beach.”  Aaron’s parents are renting a beach condo outside of town.  It is down the beach from some resort hotels loaded with young women looking to have a good time.</p>
+<p>“Awesome.  Maybe we can stop off and get some subs.”</p>
+<p>“No need, we have some homemade pizzas in the fridge.”</p>
+<p>Pink Floyd plays on the radio as we drive on the empty dark streets.  It’s a drive that I have made many times before, but this night it is different.  We enter a long wooded stretch of road.</p>
+<p>“Dave, you like Amy.  Don’t you?”</p>
+<p>“Yeah, I do.”  I answer not thinking.  He could have asked about any other girl in our school, and I would have answered the same.  The question asked is not the one answered.  I speak the same words as everyone else in my school, but not the same language.  I like all the girls in my school but know that any close relationship would end with me being crushed.</p>
+<p>We arrive at Aaron’s place well past midnight and Steve pulls in behind us.  Aaron’s parents let him stay in the downstairs part of the condo.  It has a bunk bed, but we don’t plan on sleeping that night.  We head out the back onto the beach.</p>
+<p>Steve asks “Are the twins still here?”</p>
+<p>“No, they went back to Iowa.”  Steve shakes his head at the lost opportunity.</p>
+<p>We sit down on the beach facing towards the water.  The moonlight dances on the water to the soft rhythm of waves.  Staring out into the darkness the gentle breeze pulls me into another state.  We talk for hours, but as soon as something is said, it is gone.  This moment exists.  I feel nothing but peace.  It is never ending.  A lifetime could be lived within it, but then it’s gone in an instant.</p>
+<p>The sun rises and I become aware.  The only things of importance in this life are unchanging.  They are unknowable.  They cannot be taught.  They exist now and have always existed.  They bind us to those who’ve come before and connect us to those yet to come.  As our footsteps in the sand are washed away, others take its place until the water is no more.  To deny this is to fight the waves, a struggle to preserve a single breath which only stops the next.</p>
+<p>Steve breaks my trance, “Let’s get some breakfast.”</p>
+<p>I’m so relaxed but at the same time am exhausted.  “You guys go, I’ll see you at Alexander’s tonight.  I need some sleep.”</p>
+<p>Aaron gets into Steve’s car.  I see them drive off, but I don’t move.  There’s something stopping me, something I must know.  A conflict exists.  I’m old enough and reasonable enough to realize the conflict but am incapable of understanding its inescapability and inevitability.  Aaron’s my friend, Steve and Aaron are friends, but Steve and I have no real relationship.  It’s not that I dislike Steve, he’s an interesting guy.  He’s open and willing to discuss anything.  He might even feel the same about me.  We’re just not friends.</p>
+<p>I’m not sure if there is something wrong with me, or if I am just different.  Most people seeing their best friend going off with another friend might be jealous or angry.  If I feel anything, it is closer to peace of mind.  Of course, I could be lying to myself.  Maybe I am jealous, which yields the conflict.  But, I don’t think that’s it.</p>
+<p>Friendship is a fleeting gift.  A friend helps you become a better person.  A friend will help you to become a better friend to other people.  If someone truly is a good friend, then your goal can only be to help them.  I guess that’s it.  I don’t fear the loss of Aaron as a friend, I’m happy that he and Steve are close.  Having had many best friends in my life, I am glad that Aaron is now one of them, even if this week is our last.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>The day before graduation, Tina was upset with her Mom for only booking the beach house during the week.  She had told her friends that they would be able to stay both weekends.</p>
+<p>“But Mom, you promised.  This was supposed to be the best beach week ever.”</p>
+<p>“I know Tina, but they want triple the money on the weekend.  That’s too much money.”</p>
+<p>“Amy just called.  Now everyone else is going to call.  What am I going to tell them?  I promised.”</p>
+<p>“Tina, I paid for the five days and that’s it.”</p>
+<p>“But, Mom, that’s so unfair.”</p>
+<p>“I tell you what.  I’ll get you a keg on my day off on Wednesday and bring it out there.  Is that fair?”</p>
+<p>Tina pauses for a moment, realizing that it is now time to go in for the kill.  “Throw in that new bikini and we have a deal.”</p>
+<p>“Ok, honey.  I want you to have a fun week.”</p>
+<p>“Thanks, Mom.  You’re the best.”</p>
+<p>“I try.”</p>
+<p>Packing up her stuff, Tina dreams about how all of the boys will be drooling over her in the new string bikini.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>“Giles, this is unacceptable.  You must not leave the Beemer in this state of disrepair.”</p>
+<p>“Yes sir.  I will make sure it never happens again.”   The valet picks up the straw wrapper off the floor of the car and examines under all the seats to make sure nothing else is left.</p>
+<p>“Alexander.”</p>
+<p>Startled, Alexander turns to see his father at the garage entrance.</p>
+<p>“Yes, Father.”</p>
+<p>“Remember.”</p>
+<p>“Yes Sir.”  Alexander’s father goes back inside the house.</p>
+<p>“Also, when I bring the Beemer back this time, remember to fill it up.  Father is getting angry with this lack of due care.”</p>
+<p>“Yes sir.  Will do, sir.”</p>
+<p>“Good.  Now, Giles, take me to Aris’s house.  We are heading out to the Loft to brunch with friends.”</p>
+<p>“Yes sir.  Miss Totle’s residence, sir.”</p>
+<p>As they head over to Alexander’s girlfriend’s house, a Mozart concerto plays on the radio.  Alexander hates Mozart, but his father requires him to listen to at least one hour each day in hopes that it will improve his cognitive ability.  Also, Aris is less of Alexander’s girlfriend and more his father’s choice as a companion.  His father paid her handsomely to tutor his aspiring future leader but continues paying her now even after the tutoring has stopped.  Alexander enjoys his new lessons from Aris more.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Tina comes out of the dressing room wearing her new bikini.  Brandy, Tina’s friend since elementary school, comes over to check her out, partly to support her as a friend but mostly to be able to get an upper hand on her main competition.  They became best of friends after Tina spent a weekend at the beach with Brandy junior year, but that friendship has been strained many times by the attention of boys.</p>
+<p>“Oh Tina, I hate you.  You look so good.  You’ll have guys hanging all over you while I’m just stuck with Justin.  He’s not even coming out this week.”</p>
+<p>“No, you’re so lucky to have such a good relationship with Justin.”</p>
+<p>“Relationship?  Justin’s only relationship is with cheeseburgers and beer.”</p>
+<p>“So why do you stay with him?”</p>
+<p>“Why not?  At least until someone better comes along.”</p>
+<p>“Maybe you’ll meet a new guy next week.”</p>
+<p>Brandy closes her eyes and takes in a slow deep breath.  “I can see him now.  He’s running towards me on the beach.  He has a big bulging…”</p>
+<p>“Wallet.”</p>
+<p>Brandy smiles and opens her eyes to looks at Tina, “I was going to say chest, but wallet will do.”  She closes her eyes again.  “He picks me up into his strong arms.  His bulging wallet causes money to float down from the sky.  He holds me while I grab twenties from the air.”</p>
+<p>“Twenties?  Try hundreds.”</p>
+<p>“…as hundreds fall from the sky.  Then we’re on a white horse trotting down the beach.  I’m grabbing him from behind holding onto his bulging chest.  Then I hear a screaming baby.  The diaper is full and crap is coming out the side…”</p>
+<p>“Brandy.”  Tina shakes her.  “Brandy, wake up.”  Tina looks at her confused.  “What’s up with that?”</p>
+<p>“Just a bad babysitting experience last summer…  Every time I dream about my ideal man it ends with crap all over my hands.”</p>
+<p>“That’s gross.  My dreams always end with my man holding our baby on his bare chest as we lay on a bed filled with rose pedals.”</p>
+<p>“I like yours better.  Somebody get that hypnotist from last night.”</p>
+<p>Tina waves the fifty dollar bill her mother gave her for the bikini and says, “When I count to three, all your dreams will come true.  One, two, three.”</p>
+<p>Brandy snatches the bill.  “Try twenty, fifty, a hundred.  That has a better ring to it.  Oh, by the way, Amy told me that she invited Dave to the beach house.”</p>
+<p>“Dave?”  Tina turns her head to think.</p>
+</section>
+<section class="chapter" id="chapter-02" data-label="Chapter 2: THE LOFT">
+<span class="ch-label">Chapter 2</span>
+<h1 class="chapter-title">THE LOFT</h1>
+<p class="meta">“A true friend is one soul in two bodies.” - Aristotle</p>
+<p>“Dave, the phone is for you.”  My sister yells from downstairs.</p>
+<p>“Ok, I’ll be right down.”  Still lying in bed, I am not sure I can get up.  I’ve been so high on life the last few weeks of school that I’ll probably have a hangover soon, but not this week.</p>
+<p>My sister yells again, “Aaron says to get out of bed.  It’s beach week.  You can sleep next week.”</p>
+<p>“I’m coming…”  I get out of bed, still disheveled from last night, and trot down the stairs to the kitchen.</p>
+<p>“Hey, what’s up?”</p>
+<p>“Dave, get your ass up.  We need to get going.”</p>
+<p>“Ok, Aaron, why’s everyone always on my ass?”  My sister looks over at me with wide eyes.  She mouths “I’m telling” and heads out of the kitchen.</p>
+<p>“Dude, its three o’clock, we need to get out there.  My Dad’s friend is expecting me at his office 8AM on Monday.”</p>
+<p>“Got an extra sleeping bag?”</p>
+<p>“Dude, I’ve got you covered.  Just come get me before they ask me to babysit the kids or something.”</p>
+<p>“Ok, I’ll be right there, just after I take a shower.”</p>
+<p>“Shower?  You’re going to the beach.  The salt water will take care of you.  Just get out here.”</p>
+<p>“Ok, I’m coming…”</p>
+<p>I get my clothes together and walk by the hallway mirror. I look like total crap.  It’s at least a thirty minute drive to get Aaron.  What’s the difference if I take a shower?  I need to take a shower.  We’re not going to get any leeway hanging with Alexander’s crew.  This brings up a point of confusion to ponder in the shower.</p>
+<p>I’m not sure why Amy invited me to stay with the girls, but it is at least understandable.  I’m nonthreatening and can sometimes be funny, but how did Aaron get an invite from Alexander?  Alexander has never liked me, but this is due to my laughing at his idle threats.  I’ve never sought social standing, so he has no power over me.  But if there is one person he dislikes more than me, it is Aaron.  So I’m not sure what to expect from this weekend, but it doesn’t matter as Monday is coming soon.</p>
+<p>I pick up my clothes for the weekend and nod goodbye to my sister.  Only moments away from my house, the automatic pilot part of me takes over the driving freeing me to focus on more important things such as my plans for the upcoming week.  A conversation begins in my head.</p>
+<p>“Dave, why are you so excited?”</p>
+<p>“I don’t know; I just am.”</p>
+<p>“It’s only a week at the beach.”</p>
+<p>“I know, but that’s not it.”</p>
+<p>“What is it, Dave?”</p>
+<p>“I’m not sure; this is new to me.  I’ve never been this excited by a social event before.”</p>
+<p>“What do you mean, Dave?”</p>
+<p>“I’ve gone to parties in high school before, but no matter how much fun, they always sucked, as if people were just faking that they were having fun.”</p>
+<p>“I’m not sure I understand.”</p>
+<p>“What’s to understand?  It was like being a prisoner with a life sentence and enjoying a single moment of freedom, only to be returned to the cell with no chance of escape the next morning.”</p>
+<p>“I’m still not sure I understand. What’s different this time?”</p>
+<p>“What’s not different?  School’s over; I’m no longer forced to do things that I don’t want to do?”</p>
+<p>“Are you sure that is it, Dave?”</p>
+<p>“No, but it has to be part of it.”</p>
+<p>“What else is it, Dave?”</p>
+<p>“Well, there is something else.  Amy invited me to stay at the girl’s beach house next week.”</p>
+<p>“That’s interesting.  Is it Amy’s beach house?”</p>
+<p>“No, but…”</p>
+<p>“Did she invite you to stay with her in the beach house?”</p>
+<p>“Well, not exactly.  She invited me to stay at the beach house.  I’m pretty sure her boyfriend will be staying with her.”</p>
+<p>“I see.”</p>
+<p>“What?  What do you see?”</p>
+<p>“I understand.”</p>
+<p>“You do?  Good, now tell me.”</p>
+<p>“You’re confused.”</p>
+<p>“Brilliant.  Thanks.”</p>
+<p>“You’re not sure if your invite to stay at the beach house is legit.”</p>
+<p>“No, Amy invited me.  But I don’t know if the other girls know.  But it’s not like Alexander’s.”</p>
+<p>“Alexander’s?”</p>
+<p>“Yeah, we’re crashing at his place tonight, and I know it’s not legit.  Besides, we’re at Aaron’s house so you can go away.”</p>
+<p>Aaron comes out of his house loaded with stuff.  I pop the trunk, and we manage to jam everything in somehow.  Aaron gives me a big smile and we slap hands.  He says, “Let’s do this!”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Earlier that afternoon Brandy called Tina to give her the bad news. They had planned to go together to Alexander’s Loft to hang out, but Brandy was unable to go with her because Justin wanted to take her out to an early dinner.  Tina was busy checking herself out in the new Bikini.</p>
+<p>“But Brandy, we were going to go together. That sucks.  You’ll miss the first day of beach week.”</p>
+<p>“I know, Tina, it’s so unfair.  Justin wants to introduce me to some friends of his, like I’m some pair of diamond earrings or something.  It’s like I have a leash around my neck.”</p>
+<p>“That’s so unfair.  Come out tomorrow and we’ll have breakfast at that waffle place at 10AM.”  Tina turns to check out her side profile in the mirror.  “But don’t worry; I’ll save some of the boys for you.”</p>
+<p>“I’m thinking of a bee, and that bee has an itch.  A bee with an itch, Tina.”</p>
+<p>“That’s strange because I was thinking of a double-u with that itch.”</p>
+<p>“I’ve seen that new bikini of yours.  The only boys left will be too stupid or too passed out.”</p>
+<p>“Brandy, that’s never stopped you before.”</p>
+<p>“That’s low, even for you.  Besides, he was cute, and he was a good listener.”</p>
+<p>“Well, anyway, I need to get ready.  I’m just about to go to Alexander’s.”</p>
+<p>“Yeah, you sound like you’re in a hurry, but I bet you’re just checking out your hotness in that new bikini.  Buzz…  Itch…”</p>
+<p>Tina checks herself out one last time before putting on her T-shirt and pair of shorts over the bikini.  “It’s time to let the boys check it out too.  See you tomorrow.  Laters…”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>As Alexander’s Beemer pulls into Aris’s long semi-circular driveway, he sees her at the doorway.  She hugs her parents and then turns.  The breeze flips her hair as if all of nature were within in her power to seduce.  Each step she takes makes Alexander want her more, but he knows that she is not his.  There’s something about her that defies explanation.  She has qualities that are beyond his understanding, but he can feel them.</p>
+<p>She’s beautiful beyond compare, but not the beauty that can be captured.  She’s told him that happiness is not something that can be given because it depends upon ourselves, but she’s able to pull his happiness to the surface.  But this happiness suffocates and distracts him from his real goal, although he’s not sure what that goal is.</p>
+<p>Each sweet step she takes is a stab to his heart.  The pain only makes him want her more.  She is more important to him then he is to himself.  He could never turn another woman into her, but she could make a thousand men just like him.  They went roller skating together earlier that week.  He loved skating with her, but was devastated by her when he took a break.  Seeing her skating towards him smiling with her whole body and floating away as if an angel ascending back to heaven - he knew.</p>
+<p>Giles steps out and opens the door.  Aris in one move enters the car and takes her seat snuggling up to Alexander.  Saying nothing, Alexander tries to put his hand around back reaching towards her chest, but she giggles and turns blocking him.</p>
+<p>“Giles, to the loft.”</p>
+<p>“Yes, sir.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>We cross the bridge to the beach with the windows rolled down.  The smell of salt water intoxicates us.  Our only plans this week are to have no plan, squeezing each moment for all of its worth.  Maybe we’ll meet the women of our dreams, but we’ll have fun even if we get kicked out everywhere we go.</p>
+<p>We arrive at the loft overlooking the sound side of the island.  The loft is awesome even though the beach on the sound side is not as good as the beach on the gulf side, but the beach is the last thing on our minds at this point.</p>
+<p>“Pull in over here.”  Aaron points to an unmarked parking space near the loft.  “Leave the stuff in the car; let’s check it out first.”</p>
+<p>We walk over to the stairs at the back of the loft.  When we reach the top, we see some of our classmates on the patio.  They take no notice of us and appear to be dazed.  Then one of them stands.  His name is Richey and he’s a lifelong friend of Aaron.</p>
+<p>“Aaron, you’ve made it.”  He slumbers over towards Aaron and then puts his arms around him.  Halfway hugging him, halfway grabbing on for support, it’s obvious that he arrived much earlier than us.  Aaron looks over at me with a surprised smile.  “We got here, last night, skipped that graduation crap, screw that crap, just screw it.”</p>
+<p>I say, “Hey Richey, what’s going on?”  Richey turns to look at me.</p>
+<p>“What’s going on?”  Richey laughs and then stumbles towards me.  Aaron reaches out to support him.  While Aaron is holding on, Richey says, “I’ll tell you what’s going on.  What’s going on?”  His laughing stops, and then he gets serious and sticks out his hand scolding me.  “We smoked all Alexander’s stuff; that’s what going on.”  Aaron smiles and helps his friend Richey back to his seat.</p>
+<p>Tina is sitting on the other side of the table from Richey.  She says, “Drinks are in the kitchen.”  She looks over at me and says, “Hi Dave.”</p>
+<p>I smile and we enter through the back sliding glass door into the living room. There are cups and snack food scattered all around the loft.  An older guy we don’t know is sitting at the kitchen table.  He ignores us as we fix a rum and Coke.</p>
+<p>Tina seems happy to see me.  Amy’s invite for girl’s beach house may be solid, or is it something else?  I studied with Tina one time at the library and got a feeling that she might like me.  If something is to happen, this is the week.  I could see myself with Tina.</p>
+<p>We hear laughing coming from upstairs and a door opens.  We turn to see Alexander and Aris walking down as if royalty descending to mingle with their common folk.  They see us but do not look over but instead head to the couch that faces towards the back window.  Aaron turns to me and nods.  I assume he means that we’re good to stay for the night.  If Alexander wanted us gone, he wouldn’t have intentionally ignored us.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>They enter the restaurant together and are escorted over to an already occupied table.  “Mom and Dad, I’d like to introduce you to my girlfriend, Brandy.”  Justin takes a slight step back and to the side while gently pushing Brandy towards his parents.</p>
+<p>Brandy freezes for a second, but then her beauty pageant training as a kid takes over to save her.  She gives a broad smile and extends her hand and says, “It’s a pleasure to meet you.”  Justin’s Mom shakes her hand, but Justin’s Dad makes a surprise move towards her.  He lifts her into a bear hug.</p>
+<p>“You can’t get off that easy.”  Still hugging her, Brandy looks over at Justin.  Justin says, “Dad?”  But he ignores him.  Justin then turns to his Mom.  She then says, “Okay, Bill, that’s enough” while gesturing for him to put her down.</p>
+<p>“Okay, just getting my money’s worth.”  He puts Brandy down and she darts to the opposite side of Justin.  “Son, take a seat.  Maybe we’ll get an appetizer before we ask you two some questions.”</p>
+<p>Brandy says, “Please excuse me.  I need to go to the little girls’ room.”  She looks up at Justin and then heads to the bathroom in the back of the restaurant.  Before getting to the bathroom, she turns around and looks at Justin again.  Justin says, “Please excuse me, I’ll be right back.”  He walks over to her, and they walk into the back hallway.</p>
+<p>“You said we were meeting friends?  These are not friends, Justin, these are your parents.”</p>
+<p>“That’s very observant, Brandy.  Yes, they are my parents.”</p>
+<p>Brandy glares at him, turns, and goes into the bathroom.  Realizing what he has just said, Justin wishes to take it back.  His plans are now ruined.  Reaching into his pocket, he takes out a small white box.  His heart now crushed, he stares at the box.  Brandy comes out of the bathroom ready to continue the fight, but she sees Justin holding the jewelry box.</p>
+<p>“You were going to ask me to marry you?”  He looks up at her.  She says, “I’m not going to marry you.”  His eyes shift back to the jewelry box.  “No, it’s not you.  I’m not going to marry anyone.”  Brandy wishes to comfort him.  “I just got out of high school yesterday.  I’ve got plans with Tina.  We’re going to be roommates in college.  I’m only eighteen.”  He looks back up at her, “Besides, you’re too fat for me.”</p>
+<p>He laughs and curls up his arms to show off his 24-year old body builder biceps.  She hugs him and gives each bicep a kiss and says “Maybe I’ll have a thick steak for dinner.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>As I walk into the bathroom, my reflection in the mirror appears strange.  It looks like me, but it’s not me.  It can’t be me.  The person in the mirror has a huge grin.  I’m not smiling, so how could it be me?</p>
+<p>Ah, relief at last.  I’ve been drunk before, but never like this.  I don’t remember being this drunk.  When was the last time I was drunk?  Have I ever been drunk?  I don’t remember ever being drunk.  This must be the first time.  Shouldn’t I be falling over or acting crazy?</p>
+<p>There I am again smiling.  That’s not me smiling.  That’s euphoria smiling.</p>
+<p>“Dave, are you okay in there?”</p>
+<p>Someone’s at the door.  It sounds like Tina.  I haven’t zipped up yet.  I should do that before opening the door.</p>
+<p>“I’m almost done, be out in a second.”  I zip up and wash my hands and float towards the door and open it.</p>
+<p>“Hey, Tina.”</p>
+<p>“Hi Dave, did you get lost in there?”</p>
+<p>“No, I just needed to pee.  I had too much to drink.”</p>
+<p>“I see that.” She gestures down at my pants.</p>
+<p>“Crap!”  I zip up my pants.</p>
+<p>“You’ve been in there twenty minutes.”</p>
+<p>“No, I’ve only been in here a minute.”</p>
+<p>“Ok.”  She looks at me and raises her eyebrows.  She must want me.  “Shut the door.  I need to go.”  I walk out of the bathroom and the door slams and locks.</p>
+<p>I walk back out to the patio startled that it is now dark.  Also, Aaron’s gone, and I’m not sure where he went.  Alexander, Aris, Richey, Mike and a few others are on the back patio.</p>
+<p>Richey says, “It’s dark.  Let’s go skinny dipping.”  Alexander and Aris smile.  A few of Alexander’s friends also smile.</p>
+<p>Mike says, “I’m going back to my place.  Anyone interested?”</p>
+<p>To not get caught up in this skinny dippy trap, I walk over next to Mike.  I haven’t seen Mike since last night when he was hypnotized.  He looks around to see if anyone else is going, but I’m it.  We head down the stairs to parking lot.</p>
+<p>“Thanks Mike, you saved me.”</p>
+<p>“Yeah, skinny dipping with a bunch of stoned guys is not my idea of a good time.”</p>
+<p>“Especially not with your new enhanced memory.”</p>
+<p>Mike laughs and shakes his head.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Mike and his friends have a small duplex which is far from the beach but only takes a numbed instant to reach.  His house is dark and secluded.  He enters.  I follow behind him but bump into a girl coming out of the door.  For an instant, I feel incredible.  She’s so beautiful and smiling at me.</p>
+<p>Stepping back outside to let her pass, our eyes lock.  I’ve seen her at school but know nothing about her.  She’s probably a sophomore.  Is this the moment?  Is this the girl?  We’re still smiling at each other.  I think her name is Karrie, but I don’t dare say anything.</p>
+<p>She could be a freshman.  I may have met the girl of my dreams only to end up exchanging promise rings at some prepubescent boy band concert.  She’s so incredible.  The entryway was dark but now is bright as day.  Is this what it is like?  She can’t be a freshman.  Who would let their underage daughter attend beach week?</p>
+<p>We float from one another as our yearning slips into the night.  Her form merges with the darkness overcome by the inside light.  Maybe she is the girl of my dreams.  Maybe she is the girl of my moment.  Maybe it’s not meant to be.</p>
+<p>I walk in and see why she was leaving.  A few glance but none look at me.  It’s not that I’m unwelcome.  It’s more that they don’t care.  Mike and his friends are not the popular kids, they’re not the rich kids, and they’re not the geeks.  The one thing they have in common is that they have nothing in common.</p>
+<p>Mike is sitting on the couch with some guys watching the second game of the basketball finals.  One group is in the kitchen standing around the island counter while another group is standing in the corner.  Each is doing their own thing not interfering or interacting with the others.  If I wasn’t friends with Aaron, where would I have fit?  Would I have hung with this group?</p>
+<p>I have no connection to Alexander’s group beyond Aaron and don’t connect with anyone here.  If I wasn’t friends with Aaron, would I have gotten the invite from Amy?  I’m not even sure of that, although it still would have been possible.  Even though Aaron won’t be here the rest of the week, I’m not sure I would have come out here this week without him.</p>
+<p>I wouldn’t have been a member of this group, because I have no desire to be a member of any group.  I’d rather have one good friend than a hundred good acquaintances.  I’d rather be alone by myself than alone in a group.</p>
+<p>I grab a drink in the kitchen and head back to Alexander’s.  Maybe I’ll run into Karrie on the way back.</p>
+</section>
+<section class="chapter" id="chapter-03" data-label="Chapter 3: DAY TWO">
+<span class="ch-label">Chapter 3</span>
+<h1 class="chapter-title">DAY TWO</h1>
+<p class="meta">“Change in all things is sweet.” - Aristotle</p>
+<p>Brandy wakes up next to Justin.  Something has changed from last night.  She was so turned on by him but now feels nothing for him.  Her excitement now is about meeting Tina for Breakfast and the week at the beach.  She slides out of bed glad to see Justin is still fast asleep.  If she can take a quick shower while he’s still sleeping, she can slip out without him noticing.  She picks up her clothes from the night before and instead of using the master bathroom crosses the apartment to take a shower in the second bathroom.  She sings while remembering dancing with Aaron at the prom.  Justin refused to go to the prom with her.  He said he didn’t want to party with kids, but Brandy ended up having the time of her life with Aaron.  If Justin had come, she would have been miserable having to wait on him.</p>
+<p>Tina had briefly dated Aaron during their middle school years which made Brandy want to be with him.  Aaron was a better dancer than Justin, and she hoped he would also be a better kisser.  She remembers being so turned on dancing with Aaron that she thought she would lose control.  She stops singing and starts slow dancing dreaming that she is back at the prom.  Aaron is putting his arms around her and pulling her tight.  She nudges the water to cold and feels chills of pleasure run up her body.</p>
+<p>Still slow dancing, she remembers that Tina wants to meet at 10AM, which only gives her another couple of minutes before she has to leave.  She rushes to finish the shower and changes into her clothes from the previous night and sneaks out Justin’s front door.  She jumps into her small red convertible and guides it away from Justin’s apartment.  She is overcome with joyous excitement when she reaches the main intersection and guns it.</p>
+<p>Feeling free and young and beautiful, she thinks about the things that her mother told her.  How she considered high school to be peak of her life.  Her mother now devotes her life to being a good wife and parent, things Brandy wants too.  This could be her last chance.  This week may be that story she will tell her daughter.  She makes a promise to enjoy every moment without doing anything stupid.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>I’m awake enough to know that I’m not asleep but still not awake.  From the pain shooting through my back, I realize that I slept the night on Alexander’s floor.  Aaron’s extra sleeping bag kept me warm, but it did nothing to make this hard floor feel comfortable.  Still lying on the floor with my eyes closed, I contemplate my situation.</p>
+<p>I screwed up with Karrie missing a chance.  Why did I continue into Mike’s place?  I should have at least said something to her.  Maybe she would have invited me to go with her.  Maybe I will see her again.  I’d like to do more with her than just smile at her.  I still have a chance with her, but anything with Tina is dead.</p>
+<p>I felt in total control, how could I have acted like such an idiot?  I never thought of being with Tina before because I considered her too good for me, but this changed when we were assigned that project together.   She’s not only pretty, but she is also smart.  Unfortunately, these two traits often got her into trouble.  Without her friend Brandy, she probably wouldn’t have made it to graduation.  I hope I haven’t killed my chance of staying at the girls’ house.  I hope this doesn’t negate Amy’s invite.</p>
+<p>Maybe I like Amy more than I realize.  Maybe she’ll break up with her boyfriend and invite me to stay with her.  I start to laugh and open my eyes.  Amy’s more like a sister to me than a potential love interest.  That’s why she invited me to stay with the girls.  It’s the same as if I were her brother.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Aaron wakes up and we head into the kitchen to snag some breakfast.  This is no ordinary beach house.  The typical beach house would only have some beaten up plates and silverware.  This kitchen is stocked for every conceivable meal.  We help ourselves to the plenty.</p>
+<p>“Aaron, where were you last night?  You were gone when I came out of the bathroom.  I thought you had gone to Mike’s place, so I stumbled over there.”</p>
+<p>“Dude, I waited for you, but you never came out.  When they started talking about skinny dipping, it was time to leave.”</p>
+<p>“So you went over to Mike’s?”</p>
+<p>“I never got there.  I ran into a college girl vacationing with her family.  Her parents had gone out for the night.  She told me she was lonely and wanted someone to hold her.  I could have waited for my drunken loser friend to pee, or I could have made out with a college freshman on the beach.  Tough choice.”</p>
+<p>“You’re an a-hole.”</p>
+<p>As we are sitting at the kitchen table talking, Alexander walks in and stands over us.  He’s looking down at us and searching for the right words.  “Some of the guys have a problem with you staying here.  They don’t think it is fair that they had to pay and you didn’t.”</p>
+<p>I’m not sure what Alexander is trying to tell me.  Aaron doesn’t care as he can’t stay the night anyway.  We both look at him and turn our heads like we don’t understand.  After a few second of staring at us, he turns and walks away.</p>
+<p>“Aaron, you want onions in your omelet?”</p>
+<p>“Sure, also make a side of pancakes and sausage.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Brandy pulls into the parking lot of the waffle restaurant.  She feels at peace without a care in the world.  She can’t wait to tell Tina about Justin’s proposal and to find out if she’s missed anything.  She sees Tina out front and goes over to give her a hug.</p>
+<p>“Hi Brandy, welcome to beach week.”</p>
+<p>“Not a moment too soon.”</p>
+<p>“Why?  Did you and Justin break up or something?”</p>
+<p>“No, worse.”</p>
+<p>“Worse?”</p>
+<p>“I’m not here to talk about Justin.  Let’s get a table and you can tell me about what I missed.”</p>
+<p>“Ok, but then you’ll have to tell me about what happened.”</p>
+<p>“Or what didn’t happen.”</p>
+<p>They get a booth in the back, order breakfast, and then lower their voices so no one else can hear.</p>
+<p>“What do you mean – ‘what didn’t happen’?”</p>
+<p>“No, like I said, you need to tell me what I missed last night.”</p>
+<p>“Me and Richey…”</p>
+<p>“You and Richey?”</p>
+<p>“No, not me and Richey.  Richey invited me and some other people up to Alexander’s room when Alexander was out with Aris.”</p>
+<p>“Go on.”</p>
+<p>“Alexander told Richey not to smoke all of his stuff, so of course Richey saved a smidge.  When Alexander came back, it was all gone.  Alexander was livid.  He said he was going to call the cops.  Richey dared him to do it.”</p>
+<p>“So did you have any?”</p>
+<p>“No, I didn’t relapse, but I wanted too.  I wanted it bad, but I thought about what you said.”</p>
+<p>“That’s my girl.  I’m proud of you.”</p>
+<p>“Richey kept trying to get me to do it.  He said you only live once.  But all I could think was ‘you only live once, so don’t screw it up.’  You should put that on a T-shirt.”</p>
+<p>“So what else happened?”</p>
+<p>“Dave got drunk and locked himself in the bathroom.”</p>
+<p>“Dave?  Got Drunk?”</p>
+<p>“Yeah, also Alexander tried to hit on me because he thought I was stoned.  I got pissed and told everyone that he had the smallest Woodrow I’ve ever seen.”</p>
+<p>“Did Aris find out?”</p>
+<p>“I’m sure she already knows he has a small one.”</p>
+<p>“Not about that - about him hitting on you.”</p>
+<p>“Not yet, but I’m sure she will.  I’ve told you everything.  Now tell me what’s going on with you and Justin.”</p>
+<p>“Thank God, nothing is going on.  I really dodged a bullet last night.  Justin didn’t want to introduce me to friends.  It was his parents, and he had an engagement ring.”</p>
+<p>“Oh my God.  Congratulations.”</p>
+<p>“Shut up, I’m not marrying Justin.  He’s not the type of guy you marry.”</p>
+<p>“What type of guy is that?”</p>
+<p>Brandy thinks for a second.  “Maybe a guy like Dave.”</p>
+<p>“You want to have sex with Dave?”</p>
+<p>“No, Dave’s not the kind of guy you have sex with - he’s the kind of guy you marry.   Anyway, let’s go shopping.  I need some new clothes for the week.&quot;</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>“Dave, you make a good omelet.  You’ll make a wonderful wife.”</p>
+<p>“Aaron, you’re still an a-hole.”  Remembering back to what Alexander has said, “Is Alexander asking me to give him money or if he is kicking us out?”</p>
+<p>“We should leave.  That way, you have the option to come back.”</p>
+<p>“I’m not sure I want to come back.  I don’t want to screw up my chance to stay at the girl’s beach house.”</p>
+<p>“I know what we can do.  Father Shelton’s beach house backs up to the gulf.  We can hang out there.  Also, Tina said the girl’s house was just across from it.”</p>
+<p>“What’s a priest doing with a beach house?”</p>
+<p>“I don’t know, I think his family has money.”</p>
+<p>We pack up our stuff and head out the service entrance to avoid Alexander and his group who are on the back deck staring out at the water.  I’m glad to leave Alexander’s but get the feeling that I will see the loft again.</p>
+<p>“The girls are staying there.”  As we are driving to the priest’s house, Alexander points to a two story beach house with an awesome party deck on one side.  The only drawback is that the house is across the street from the beach, but that’s not much of a drawback.</p>
+<p>“Aaron, this week is going to be awesome.”</p>
+<p>“Who’s the a-hole now?”</p>
+<p>“Sorry, but you can still come out at night after work.  I’m sure most of the parties will be at night anyway.”</p>
+<p>“Dude, pull in over here.”  Aaron points to area which has a ‘no parking’ sign.</p>
+<p>“What about the sign?”</p>
+<p>“Don’t worry about it.  The cops only ticket if someone complains.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>“You had sex with Tina?”</p>
+<p>“I most certainly did not.”</p>
+<p>“Then how does she know?”</p>
+<p>“Know what?  What are you are talking about?”  Alexander moves to switch from her dominant to submissive side.</p>
+<p>“I go out for a few minutes and this is what you do?  Can’t you control yourself for even a few minutes?”</p>
+<p>“You were gone almost an hour.”</p>
+<p>“An hour?  That’s all it takes for you to cheat on me?”</p>
+<p>“I didn’t cheat on you.  Tina said she didn’t want to have sex.”</p>
+<p>“Tina?  Tina said she didn’t want to have sex?  You asked Tina to have sex, and she rejected you?”  Aris holds her hand to her chest.  “I could have forgiven you for being seduced, overcome with passion, wanting it so…”  Holding back tears, her heart rips her chest open.  She appears ready to faint.  Alexander steps over to comfort her.  “Get away from me.”  He backs away.  “We are through.”</p>
+<p>Alexander gets down on his knees pleading.  “I’m sorry Aris.  I made a mistake.”  He puts his head down.  “There is nothing I want more than to be with you.  I’ve made a terrible mistake and learned my lesson.  I guarantee it will never happen again.”</p>
+<p>Realizing her situation, she feels peace return and starts to smile.</p>
+<p>“There you go.  You look better already.  Aris, I will always love you.”</p>
+<p>Aris shrugs.  “I don’t care if it happens again because we are no longer together.  But don’t worry, we can still be friends.”</p>
+<p>He looks back up at her.  “I promise, Aris.  It will never happen again.”</p>
+<p>She smiles and no longer recognizes him.  “Bad men are full of repentance.”  She turns and is lost forever.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Tina holds up two blouses.  Placing one against her chest and then the other, she imagines how they would look over her new bikini.</p>
+<p>“Brandy, do you like the white or the pink?”</p>
+<p>“Definitely the white.”</p>
+<p>“I like the pink.”</p>
+<p>“The pink is too transparent, although it does match your personality.”</p>
+<p>“Speaking of transparent, does Justin know that you are just using him?”</p>
+<p>“Using him?”  Brandy gives Tina a look.  “The pink also makes you look a little bit pregnant.”</p>
+<p>“You can’t be a little bit pregnant, but what if Justin gets you pregnant?”</p>
+<p>“Tina, you have much to learn about boys.  If we were having sex do you think Justin would be in such a hurry to put that ring on my finger?”</p>
+<p>“You’ve been dating him all year and haven’t had sex?  I don’t believe that.”</p>
+<p>“Of course you don’t.  You treat dating like skydiving.  Geronimo…”</p>
+<p>“No I don’t.  I always protect myself.”</p>
+<p>“Protect yourself?  I’m not talking about that.  You’ve got the knight in shining armor and princess thing going.  You immediately fall for every guy and then are destroyed when you find out.”</p>
+<p>“Find out what?”</p>
+<p>“You’re not falling in love with the guy.  You’re falling in love with your imagination.  The guy’s just along for the ride.”</p>
+<p>“Oh please, Mrs. Justin, Queen of the World.”</p>
+<p>Brandy lowers her head and turns.  Her body fills with pain.  “You’re right.  I think I’m going to break up with Justin.  If I don’t want to marry him, I shouldn’t continue dating him.”</p>
+<p>Tina gives Brandy a hug.  “Brandy, you deserve a knight in shinning armor.”</p>
+<p>“All I want is a Man who Loves me.”  Tina gives her a hug.  “Tina, come over my house tonight.  I don’t want to be alone.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>We enter Father Shelton’s beach house from a stairway on the side.  The stairway leads to a door that opens to a dim living room.  All of the curtains are drawn tight making the room feel small.  Underclassmen are on the couch eating pizza and drinking.  The boys ignore us because they are laughing at a video of people and animals dying on a big screen TV.</p>
+<p>Aaron leads me into the kitchen which is blocked off from the living room by a wooden shade.</p>
+<p>“Dave, you want a double?  You’re not driving anytime soon.”</p>
+<p>“No, just a splash.  I’m feeling a little sick.”</p>
+<p>“Yeah, me too.  I normally don’t eat that big a breakfast.”</p>
+<p>“It’s not the breakfast.  How can people watch that.  Screw it, make it a double.”</p>
+<p>Aaron fills the cup with rum to the top of the ice and then puts in a splash of soda.  We take our drinks and head out to the back deck facing the Gulf of Mexico.</p>
+<p>I feel relaxed but then Aaron says “Dave, I’ve told you what I did last night, but what happened to you?”</p>
+<p>“I was starting to think Tina liked me, but I screwed it up.  We studied together for a class project a couple of months ago.  She kept looking at me and smiling, but last night...”</p>
+<p>“Why?  What happened?”</p>
+<p>“I didn’t realize that I’ve never been drunk before.  I was fixated by my idiotic grin.  When I came out of the bathroom, Tina looked disgusted with me.”</p>
+<p>“That means nothing.  You don’t understand women.”</p>
+<p>“Since you’re the women expert, teach me.  What don’t I understand?”</p>
+<p>“When you talk to a man, you are talking to that man.  When you talk to a woman, you are talking everyone else she dealt with that day.”</p>
+<p>“That’s the biggest load of crap I’ve ever heard.”</p>
+<p>“You don’t believe me?  I talked to Tina last night after I got back.  Did you know that Alexander tried to hook up with Tina just before she ran into you?”</p>
+<p>“Tina’s interested in Alexander?”</p>
+<p>“No, she said his family’s endowment was solely monetary.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>“Giles, give me the keys to the car.”</p>
+<p>“But, sir, your father…”</p>
+<p>“My father is my concern.  Give me the keys to the car.”  Giles puts the keys to the luxury sedan on the table.  Alexander snatches the keys.</p>
+<p>He pulls out onto the main road and turns to head further out on the island towards the emptiness.   He sees the sun setting and realizes that he had spent the entire afternoon lying on the bed glaring at the ceiling burning with anger.  How could Aris do this to him?  The sun completes its fall as he pulls into a small empty parking lot.   He sits staring out at the on-coming darkness.  He’s not only lost Aris, but now he’s lost himself.</p>
+<p>He knew this day would come.  He had spent his entire life positioning himself within this group of classmates, and now he will be alone.  In a few months he is going up North to attend his father’s alma mater, but his social standing is now going to be gone.  He’ll be one within many now, fighting just to be relevant.  What was the point of high school if everything he did was now gone?</p>
+<p>Alexander finds himself walking in the dark past the sand dunes over to the sand still warm from the burning sun.  He sits and covers his head wondering how things could ever be worse.  Then he looks up to see a figure on the beach.  She is moving towards him swaying hypnotically back and forth, the moonlight caressing her body.  She comes closer, close enough to be seen.  He is startled by both her beauty and her age.  She sits down next to him and looks out at the water away from him.</p>
+<p>She says, “Did you lose something?”</p>
+<p>He puts his head back under his arms.  “I lost everything.”</p>
+<p>“What was her name?”</p>
+<p>He lifts his head.  “How do you know it’s about a girl and not something else?</p>
+<p>Still looking out at the water, she takes a breath.  “I know how you feel.  I’ve lost everything myself.”  She picks up a stick and slides it back and forth in the sand.  “Every day I lose everything.”</p>
+<p>“What does that mean?”</p>
+<p>“The tide that comes in also washes out.  When you own, it always ends in loss.”</p>
+<p>“You don’t own anything? So you’re poor?”</p>
+<p>“No, I am rich because I own nothing.  Possessions are a reality.  People are a reality.  Ownership is a misunderstanding of that reality.  Loss is the undoing of that misunderstanding.”</p>
+<p>“Are you a Communist?”</p>
+<p>She laughs.  “No, I run my own business.  I’m not talking about social policy.  When you love someone and cherish each moment with them, you never miss them.  You only remember and celebrate that you were fortunate enough to have loved them.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Aaron finishes swimming and walks over to me lying on a beach chair under a large umbrella.  “Dude, it’s getting late.  I need to get some sleep tonight or I will never wake up early enough to go to work.”</p>
+<p>“I’ve been ready to go for hours - not sure I will come back tonight either.”</p>
+<p>“Dave, just remember one thing.  This is freaking beach week.  Don’t miss anything this week, there is no second chance.”</p>
+<p>I smile thinking about the week ahead.  “There is nothing for me at Alexander’s.  I’d better save it for tomorrow.”</p>
+<p>We walk out to my car which now has a parking ticket.    I pick up the ticket which is a yellow envelope and pull out a slip of paper.  I hear laughter coming from upstairs and see the kids from Father Shelton’s house standing on the patio.   The note reads “Got you DORKS!”  I smile and point at the kids.</p>
+<p>We get in the car and head back over the bridge.</p>
+<p>“The next time I come over this bridge it will be to the girls’ house.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Brandy and Tina arrive at Brandy’s house for the final sleep-over of high school.  They plan to do their hair and nails and get themselves ready for the week.</p>
+<p>Brandy’s mom knocks on her door and then opens it.  “Brandy, phone for you.  It’s Justin.”  Brandy and Tina look at each other.  “Brandy, is something wrong?”</p>
+<p>Brandy takes in a breath and lets out a sigh.  “No, Mom.  It’s just, my relationship with Justin.  It’s probably over.”</p>
+<p>“Oh, Honey, are you okay?”</p>
+<p>“Yeah, I’m the one ending it.  Justin proposed yesterday, and I turned him down.”</p>
+<p>“Justin proposed?  Why didn’t you tell me?”</p>
+<p>Brandy looks at Tina and then walks out of the room with her Mom to the hallway.  “Mom, I didn’t tell you because I’m not going to marry him.  I plan to break up with him.”</p>
+<p>Brandy’s Mom gives her a hug.  “Honey, if you ever need to talk, remember you can always talk with me.”  She stops for a second.  “Go back and have fun with Tina.  Don’t worry about Justin tonight, I’ll tell him you’re not here.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>As we pack up our stuff to leave Alexander&#x27;s loft on Monday morning, I remember Amy&#x27;s invitation from Project Graduation on Friday. She&#x27;d said something about the girls checking into their beach house on Monday, that I was welcome to stay. At the time I thought she was just being nice, but now that we&#x27;re getting kicked out, maybe she meant it.</p>
+<p>&quot;Aaron, remember what Amy said about the girls&#x27; beach house?&quot;</p>
+<p>&quot;Yeah, that you could crash there when they check in tomorrow. You thinking about taking her up on it?&quot;</p>
+<p>&quot;I don&#x27;t know. Would that be weird?&quot;</p>
+<p>&quot;Dude, you&#x27;re homeless again. Weird is relative.  I&#x27;d go too, if I could.&quot;</p>
+<p>I look back at Alexander&#x27;s loft one more time. The pretentious vibe, the sound side location, the drug-induced tolerance that&#x27;s wearing off - maybe it&#x27;s time to try somewhere different. At least Amy actually invited me.</p>
+</section>
+<section class="chapter" id="chapter-04" data-label="Chapter 4: GIRL’S BEACH HOUSE">
+<span class="ch-label">Chapter 4</span>
+<h1 class="chapter-title">GIRL’S BEACH HOUSE</h1>
+<p class="meta">“In nine cases out of ten, a woman had better show more affection than she feels.” – Aristotle (blame him not me for this quote)</p>
+<p>Brandy, Tina, Amy, and the girls all arrive at the beach house late Monday morning.  Amy and some of her friends take the downstairs area, which includes a living room with a pool table.  Brandy, Tina, and four other girls take the upstairs bedrooms, with Brandy and Tina sharing a bed.  Tina’s Mom had gone by the owner’s house the night before to pick up the keys and a little something else for extra protection.  Amy is upstairs checking out Brandy and Tina’s room.</p>
+<p>“Amy, here’s your box.  Brandy, you get this one.”</p>
+<p>Amy turns her head in confusion.  “What’s this for?”</p>
+<p>“It’s so you don’t become a grandma before you turn forty.”</p>
+<p>“But I don’t have any kids.  How could I become a grandma?”</p>
+<p>Brandy rolls her eyes.  “Don’t you remember senior skip day at that hotel?  You spent like two hours with your boyfriend in the shower.”</p>
+<p>“Yeah, I remember, but all we did was make-out and get really wrinkly skin.”</p>
+<p>Tina, not believing what she is hearing, takes a deep breath.  “Amy, did you do anything besides make-out?  Two hours is an awfully long time to be in the shower with a guy only making out.”</p>
+<p>“Well, we did do other stuff.  But it was so quick.  Besides, I don’t think he liked it.  It looked like he was in pain.”</p>
+<p>Tina looks at Brandy and then turns back to Amy.  “Amy, let’s go for a walk.  I need to talk to you about something.”</p>
+<p>“Ok, I’ll go get my sandals.  Be right back.”  Amy leaves the upstairs area and goes down to her car.</p>
+<p>“Oh my God, Tina.  Amy is the smartest girl in our school.  How can she not know?”</p>
+<p>“We’re not as lucky as you.  You have an awesome Mom, but don’t worry.  I’ve got this one.  I still remember our talks from middle school.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Earlier that morning while still dark, a dull throbbing pain in Alexander’s head woke him.  To increase the hurricane protection of the loft, it was built with no windows except the sliding doors to the patio, which can be covered by a hurricane shield.  The upstairs bedroom is an isolation chamber, completely dark and quiet.  Except he hears something, it is a faint sound, almost like breathing.  It is breathing, but who’s in bed with him?</p>
+<p>Could it be that woman from the beach?  He hopes it is and they made wild passionate love.  Even though she was old, maybe even thirty-five, she was gorgeous.  She was his forbidden fruit, the women on the beach, old enough to be his parent, young enough to be his new lover.  He realizes it can’t be her.</p>
+<p>When she sat next to him, he not only saw her beauty.  He could feel it.  She had the beach in her.  She walked on the beach without effort, almost as if she were part of it.  Her hair flowed with the wind and the surf, and she had a smell.  It was the smell of coconut, the smell of coco butter.  Sun tan lotion had become part of her.  The girl lying next to him had a different smell.</p>
+<p>He moves closer to her and smells her hair.  Her hair has the smell of lavender.  It’s not a familiar smell.  Who’s in bed with him?  She has her back turned towards him.  Maybe he should run his warm hand under her nightgown up and down her back.  He doesn’t care who she is.  She’s in bed with him.  They must have at least made out.  He feels himself wanting her, in a moment she will be his.</p>
+<p>He moves his hand closer to her back.  He is now nothing but the anticipation of touching her.  He moves even closer to her body.  He can feel the warmth coming from her skin.  Startled, his heart breaks, he knows it can’t be, but it is.  The lavender is the shampoo from the loft.  It could be from any girl, but the body, the body has the smell and shape of only one woman.  Aris is lying next to him.</p>
+<p>He backs away to his side of the bed.  He remembers the woman on the beach but does not remember coming back to the loft.  He has no memory of getting back together with Aris.  He lies in bed next to her feeling his heart racing.  He tries to slow his breathing but can’t.  He lies in panic awaiting the morning.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Tina and Amy walk down the beach.  Tina knows what she needs to say but is not sure how to say it.  Brandy told her the important thing is to care about the other person and share that caring with them.  When two people share themselves with each other, what they say loses its importance, the other person only sees that caring.</p>
+<p>“We’ve known each other since elementary school, but we’ve never really talked.”  Amy looks at Tina and smiles.  “Amy, where are you going to college?”</p>
+<p>“I was going to go to the same school as my boyfriend but ended up getting a full scholarship to another school.”</p>
+<p>“Are you going there instead?”</p>
+<p>“Yeah, and it also made me spend some time thinking about our relationship.”  Amy lowers her head.  Tears of sadness form in her soft blue eyes.  They sit down together on the beach and Tina touches Amy’s shoulder.  “It was the hardest thing I had to do in my life, but I had to do it.”</p>
+<p>“Isn’t he staying with you this week?”</p>
+<p>“Yeah, but this is it.  This is our last week together.”</p>
+<p>“How long have you been dating him?”</p>
+<p>“We started dating at the end of freshmen year, so it will be three years.”</p>
+<p>“Wow, three years.”  Tina laughs.  “I think my longest relationship was three weeks.”  Tina puts her head down.</p>
+<p>Amy puts her arm around Tina.  Amy knows that laugh. It is not a laugh of joy.  “Tina, I’ve always thought you were the prettiest and smartest girl in school.”</p>
+<p>“No, Amy, you’re prettier and much smarter than me.”</p>
+<p>Amy smiles and demurs with a shake of the head.  “I don’t know why, but I sometimes, I get scared when I talk with people.  I end up saying things, not the things I want to say, things different.  Do you know what I mean?”</p>
+<p>“I’m not sure.  My problem has never been saying the right thing.  My problem is stopping myself from doing the wrong things.  Before I know what I am doing, it is already over.”</p>
+<p>“I know, I often have that problem too.  But when you and Brandy asked me about doing it, I was embarrassed.  I’ve been so lucky.  We’ve only done it a couple of times.  I just got lucky.  I’d love to be a Mom, just not this decade.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>I wake up at home.  The first thought that pops into my mind is the girl’s beach house.  Every part of my body is alive.  Elated does not even begin to describe this feeling.  I’m glad that I was lucky enough to avoid using drugs.  If it even feels half as good as this feeling, then I understand.  I never understood before, but now I do.  This feeling could easily become my jailer.</p>
+<p>How can I repay Amy and the girls for inviting me to stay with them?  I doubt they will have food.  I’m sure if I make them some pizza and spaghetti and other meals that would at least partly repay them for their hospitality.  It’s not much repayment because allowing me to stay with them means more than they could ever know.  I’m not even sure I am capable of putting it into words.  Even if I can’t tell them, maybe I can show them.</p>
+<p>So far this weekend has been fun but strange.  Crashing at Alexander’s was not what I expected.  Being with the people from school was fun, but it was like reliving that bad high school party, but this time I was drunk.  Maybe that was the difference from other high school parties.  But I don’t remember doing anything fun at Alexander’s, so what was the point?</p>
+<p>I like Mike, but I don’t fit in with his group.  I’m not sure why I don’t fit.  It’s never bothered me before that I didn’t fit into any group.  I’ve never desired anything but a one on one relationship with other people, but now it does bother me.  Maybe it’s that I never stopped to think about it, or maybe it’s that a four year long depression has just lifted.</p>
+<p>I want to think I have a chance to have a relationship with one of the girl’s from school, but they already know me.  After being with these girls this long how can I just take notice of one of them now?  How can I explain that I ignored them for four years but now think they are the most awesome women in the world?  While I would be insanely lucky to be with any one of them, I know I cannot be with any of them.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Tina and Amy walk back together from the beach as Amy’s boyfriend’s car pulls into the beach house.  Amy runs over and gives him a hug.  As she is hugging him, he reaches down and squeezes her tight.  She nudges him away and turns back to look at Tina.  Amy rolls her eyes and then mouths, “thank you.”  Tina smiles and then Amy goes into the bottom floor with her soon-to-be-not boyfriend as Tina heads up to check on Brandy.</p>
+<p>“Hey Tina, so how’d it go?”</p>
+<p>“I’ll tell you about it later.  Now, I want to go swimming.”</p>
+<p>“You’re not going to get off that easy.”</p>
+<p>“Don’t worry, I’ll tell you, just not now.  Brandy, you need to get that hot body of yours into that bikini.”</p>
+<p>“But Tina, I want people to value me for my mind.”</p>
+<p>“Ok, get those hot brains of yours into that bikini.  We’re going swimming.”</p>
+<p>Brandy yawns and rubs her eyes.  “I need to take a nap.  Someone kept me up last night.”</p>
+<p>“You can sleep when you’re dead.  Get a move on, sailor.”</p>
+<p>“Don’t do that sailor crap with me.  I’m taking a nap.”  Brandy and Tina walk into the bedroom.  Brandy lies down on the bed and curls up.  Tina heads over to the dresser and gets out her new bikini.</p>
+<p>“You’re loss.  I saw some hot guys at the beach just waiting for us.”</p>
+<p>“You can have them.”  Brandy turns over and curls the pillow around her head.</p>
+<p>Tina puts on her new bikini and heads out to the beach.  Brandy dreams about swimming in the sky while Tina plays in the waves anticipating the fun soon to come.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>I’m driving out to beach but I’m not driving.  This must be how a bird feels when its wings catch that first updraft.  It floats up into the sky unbounded by that which ties everything else to the ground.  The bird denies its nature and becomes free.  But the bird is not unlimited.  It cannot become something other than what it is.  In that, people are truly the unbounded ones.  What are we if not this?</p>
+<p>Driving to the bridge, I see a police car and realize that I am flying too.  I slow my speed as my heart skips a beat.  Unnoticed, I crest the bridge and roll down my window partly to pay the toll, but my true intention is to inhale my first true breath of beach week air.  The road turns to the left and girl’s beach house is pulling me closer.  I turn right and then left and see the house again, but this time the house is alive.</p>
+<p>I park on the street in front to not block the driveway.  Tina in a white bikini is coming down the stairs from the party deck.  I grab the groceries and head towards her.</p>
+<p>“Hey Tina, where should I put these?”</p>
+<p>“There’s a refrigerator upstairs, just don’t make too much noise.  Brandy is having her beauty rest.”  She smiles and then walks off towards the beach.  I turn to go up the stairs, but then turn back to notice something different about Tina.  Something about the way she is walking.  She has a rhythmic twist and then a bounce.  I’m allured by each step she takes but also intimidated.  I shake it off and head into the upstairs kitchen.</p>
+<p>No one else is here, but there is a bedroom door that is shut, so that must be where Brandy is sleeping.  I gently put the two large paper grocery bags onto the counter and turn to see Melissa and Cindy each carrying a suitcase coming through upstairs door.  I’ve been in school all four years with both girls but know little about either.  I took Melissa to the prom but was not assertive enough to maintain a relationship with her.  Cindy was always cute, always smart, and always in my class, but she is a stranger to me.</p>
+<p>“Hey”</p>
+<p>“Hi”</p>
+<p>“Oh, Brandy is sleeping.”</p>
+<p>“Ok”</p>
+<p>They head into their room with their suitcases and shut the door.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Alexander, no longer panicking, lies in bed unable to move.  The dark has past and it has been light for many hours.  He sees the sun through the bottom of the bedroom door.  Breathing deeply, he knows Aris will be next to him if he opens his eyes and that nothing he has said so far has helped.  He is better off being still.</p>
+<p>He feels the bed move and his body oscillates for a second.  Then he hears the gentle footsteps of a women heading away from him towards the bathroom.  Alexander lies still awake but unable to move.  He’s too scared to say anything but knows he must.  Are they back together?  What is Aris thinking?  Is she doing this just to get revenge?  Is she going to real him back in only to crush him?  Maybe things can go back to how they were before.  Maybe things are about to get much worse.  Still frozen, he lies in bed while he hears Aris leave the bathroom and slip out the bedroom door.</p>
+<p>If they are back together, why would she leave without waking him? Something else must have happened, but what?  He did nothing to regain her trust.  Now he wants Tina more than ever.  When she got up in his face and said that word to him, he ignored the “you” after it.  He imagines her whispering it repeatedly in his ear, but with “me” after instead.  He could smell the mint from her toothpaste, the feel of her body next to his, in front of his, up close to his.  Maybe she will be his.  Maybe the thing he wanted when he was dating Aris was just another woman.  This could be the goal that he was missing.</p>
+<p>But he still wants Aris, and not the same way he wants Tina.  His desire for Tina is to do one thing.  He wants to do that thing repeatedly, but it’s still just one thing.  With Aris he wants to do everything.  She has shown him things inside himself that he was blind to before, but now he sees them.  It’s as if he has always seen them.  Alexander falls back asleep.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>I’m in a house full of beautiful women, but I see none of them, so I should put the groceries away and head to the beach.  Tonight will be pizza, which has a special recipe.  It has been perfected after years of serving it to my family.  I use a little olive oil and basil on the crust, which gives it a slight crispness and flavor.  The sauce is such a secret recipe that I don’t even tell it to myself.  I just blindly put it together and hope for the best.</p>
+<p>I put the food away and head into the hallway bathroom.  I expect to see that euphoric smile from the loft, but instead am shocked.  My eyes are wide and my eyebrows raised.  I look surprised.  No, not surprised, it is a different look.  It’s more a look of fear, even fright.  I take a deep breath and then let it out.  My face relaxes, so I put on my bathing suit.</p>
+<p>I leave the bathroom and at the same time Brandy comes out of her room.  She looks nothing like the Brandy that I know.  She is wearing a white bikini, which makes her body appear to be glistening like the sun.  She looks so different that I wonder if she is the same person.</p>
+<p>“Hey Dave.”</p>
+<p>“Hey, I just put the food away and am just heading down to the beach now.”</p>
+<p>“You got us food?  That’s awesome.”</p>
+<p>“Hey, no problem.”</p>
+<p>“Tina’s down their now.  I think her brother may be down there too.  I talked with her brother the other day.  He keeps hitting on me, but I tell him that I am saving myself for Dave.”</p>
+<p>I laugh.  “Yeah right.  Like I have a chance.  Let’s go.”</p>
+<p>We head down to the beach together.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Melissa and Cindy decide to try on some of the new clothes that they bought for the week.  Both had bought a new one piece bathing suit and a bikini along with some evening wear.  They would like to wear their bikinis all week but demure, and decide to try on their one pieces first.</p>
+<p>While they are both beautiful, young, and full of life, something just does not feel right to them about showing their bodies.  They’ve been taught that women should not be objectified, and that a guy should fall in love with their brain, not their body.  Who they are, how they think, and how they treat others should be the judge of their worth, not how their body looks.</p>
+<p>Melissa, wearing a black and white one-piece with a cross hatched design turns to Cindy.  “There’s something that has been bothering me.  How did you do on that physics final?”</p>
+<p>“Oh, I got a hundred on it.”</p>
+<p>“A hundred?  I ended up getting a B+ in physics because I messed up on the final.”</p>
+<p>“How could you mess up?  It was all true/false questions.”</p>
+<p>“I don’t know.  It looked like most of the questions were just photocopied from the book, but some had portions with hand written changes.  I assumed that the hand written changes made the questions false.”</p>
+<p>“No, all of the answers were ‘true’.  Didn’t you go to the study session before the test?”</p>
+<p>“No, my car battery died, so I wasn’t able to go.”</p>
+<p>“Well, Mr. Anderson said we would do well if we knew the end of chapter study points.  He then told us we could bring a single sheet of paper, so I wrote all of the study points on the sheet of paper.”</p>
+<p>“That’s not fair.”</p>
+<p>“What does it matter?  High school is over.”</p>
+<p>“It’s just the principle.  What’s the point of a test like that?”</p>
+<p>“Don’t worry, you’re not alone.  I talked with Alexander after the test, and he made the same mistake.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>“I’m going to sleep with your friend tonight.”</p>
+<p>“Shut up Chris, Brandy already has a boyfriend.”  Tina splashes water at her brother.  He turns and closes his eyes.  Chris moves over to his sister and grabs her arm.</p>
+<p>“Not for long, Sis, because after I sleep with her, she will be mine.”</p>
+<p>She takes her hand and ducks it under his arm and twists freeing herself.  “In your dreams.  Brandy is not interested in you.”</p>
+<p>“We’ll see.  I’ll turn on the Chris-charm.  Don’t you worry your pretty little head about it.  She’ll be mine.”</p>
+<p>“No, Brandy’s not interested in you.  She told me she was surprised to see you come out of the shower one time when she was over our house.”</p>
+<p>Chris nods his head and smiles.  “Yeah, I was surprised to, surprised to see her checking me out.”  He takes his hands and runs them down his sides like a model at a display.</p>
+<p>“Now you’re delusional.”</p>
+<p>“Brandy’s going to break up with her boyfriend anyway.”</p>
+<p>“How did you know that?”</p>
+<p>“Because you just told me.  Awesome.  She is breaking up with Justin?”</p>
+<p>“I didn’t say that!”</p>
+<p>Chris moves in close to Tina.  “You didn’t deny it either.  She’s going to be all vulnerable.  Maybe she needs a little Chris-time.  I can handle some crying if it’s going to end with a little nookie.”</p>
+<p>Tina pushes her brother away from her.  “You’re a perv.  I ban you from the house.  If you come near it, I will kick you out.”</p>
+<p>“You can’t do that.  I’ll tell Mom.”</p>
+<p>“Don’t worry, when I tell Mom what you said, she will ban you.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Brandy and I get to the beach.  We see Chris and Tina playing out in the waves.  Chris had graduated the previous year and came back home from college after freshman year for the summer.</p>
+<p>Brandy sees them playing in the water and says, “It’s good to see a brother and sister who get along so well.”</p>
+<p>We head out into the water.  We get near them and realize that they aren’t playing but are having a family quarrel.  Now waist deep in water, Tina heads over to Brandy.</p>
+<p>“Hey Brandy.”</p>
+<p>“What’s going on?”</p>
+<p>“Nothing.”  Tina looks over at Chris.  “Nothing is going on and nothing will be going on.”  Chris laughs and shrugs his shoulders.  I head over to Chris and give him a half-hand shake half-hand clasp.</p>
+<p>Chris swims over to Brandy.  “Let’s have a chicken fight.  Brandy, get on my shoulders.”  Brandy swims over and gets on Chris’s shoulders.  Chris winks at Tina.  She glares back and then swims over to me.  I duck down, and she gets on my shoulders.  I’m about to ask Tina why she is upset with Brandy but decide to hold my tongue.</p>
+<p>I start out having trouble keeping Tina on my shoulders but we click after a few second.  Brandy and Chris form an amazing Chicken fighting team, but we start to get the upper hand.  We get in close to them but then Chris reaches up and grabs his sister’s bikini top.  He’s about to pull when I reach my pointer finger out and jab it into his side.  He lets go of Tina’s top and jerks to that side throwing Brandy into the water.</p>
+<p>Tina yells, “Winner, Winner, Chicken Dinner.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Alexander awakes again now with a sharp pain in his head.  Feeling a bump on his forehead, he remembers the woman on the beach.  He remembers what she had said.  Then he remembers heading back to the beach house and slipping on some wet stairs as he was heading up to the room.  Remembering everything, he still knows nothing.</p>
+<p>Aris must be screwing with him.  Why else would she get in bed with him again?  Is it her plan to get back together with him and then dump him?  Or is it her plan to get back together with him and then cheat on him?  He’s not sure which, but no matter what the case, he won’t let her screw with him again.  He is through with her.  If she wants to make out or have sex, he is game, but otherwise he is done with her.</p>
+<p>What did he do that was so bad anyway?  He didn’t actually do anything, and besides he was only joking when he asked Tina if she wanted a visit from the big one.  Tina is the one that caused all of these problems by blowing the joke out of all proportion.  If Aris is angry with anyone, it should be with Tina for trying to steal her man away from her.</p>
+<p>He decides that as punishment for the trouble she has caused, Tina will no longer be allowed back in the loft, unless of course she wants to make out or have sex with him, but otherwise she is banned.  He turns over and goes back to sleep.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Melissa and Cindy take off their bathing suits and get back into their regular clothes.  They both want to talk but neither knows what to say.  In the past they’ve wanted to talk about their futures, about college, about guys, especially about guys, but instead they’ve just talked about test scores, and ACT scores, and SAT scores.  They’ve learned from school that sharing feelings doesn’t help your grades or your college prospects.  It’s better to be smart, get good grades, but not let anyone else know.</p>
+<p>Melissa says, “So the answers on that test were all ‘true’.”</p>
+<p>“Yes, but what does it matter now?  We should have fun.  Maybe we can try on some evening wear.”</p>
+<p>“I like your black dress.  I think it will look good on you.”</p>
+<p>“I don’t know.  It may be too big in some areas and too small in others.  I wish those areas were switched.”</p>
+<p>“Cindy, you look good.  Any guy would be lucky to date you.”</p>
+<p>“Yeah, I gave ‘any guy’ my number, and he still hasn’t called.”</p>
+<p>“Don’t worry, it will happen.  When we get to college, it will be different.”  Cindy takes a deep breath and turns her head.  “Trust me, Cindy, it will be different.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>When we began swimming, the sun was overhead, but it is now diving towards the western horizon.  The game of chicken continued even after the first Brandy take down and has become a draw with both sides getting deep fried.  I try not to think about it, but it keeps entering my thoughts.  Do I now have a chance with Tina?</p>
+<p>With that thought in my mind, we start back to the beach house.  I’m walking with Brandy.  Tina is walking between me and Chris.  Chris makes a couple of attempts to get around Tina, but each time Tina blocks him.  We reach the beach house and Brandy decides to play some pool with Amy and heads into the bottom floor.  Chris decides that he has had enough for the day and needs to go home.  So, I walk with Tina up the stairs.  We enter beach house to hear people talking in Melissa and Cindy’s room.</p>
+<p>Tina heads in to find out what is going on and I follow behind her to see Cindy in the bathroom in a black evening gown.  She is nervously adjusting the top of the dress and appears to be in distress, but I am surprised by how good she looks.  How could I sit in the same classroom for four years with Cindy and never realize?  My confusion is complete.  There isn’t a single girl in the beach house now that doesn’t confound me.</p>
+</section>
+<section class="chapter" id="chapter-05" data-label="Chapter 5: THE FIRST NIGHT">
+<span class="ch-label">Chapter 5</span>
+<h1 class="chapter-title">THE FIRST NIGHT</h1>
+<p class="meta">“The young are permanently in a state resembling intoxication.” - Aristotle</p>
+<p>My stomach rumbles, and I realize that I haven’t eaten all day.  I was too excited to eat this morning and having too much fun at the beach this afternoon to care.  But I can feel the entire length of my intestines quivering in the anticipation of food.</p>
+<p>I check the pantry and the fridge to see if anyone else brought anything.  I see beer, wine coolers, and some take out boxes from various restaurants.  We’re staying here a week and this all that they brought?  No wonder all these girls are so thin.  If this had been ten years earlier, we’d be in a bakery right now.  One of the girls would be making a spinach quiche while the others tidied up the place.</p>
+<p>I take out the pizza dough mix and look for a bowl but only find a plastic pitcher.  I pour the mix into the pitcher and add water, then stir, then add a little more water eyeballing to make sure the dough is just right.  After the dough is ready, I add olive oil and coat the outside before splitting it into four equal pieces.  Four pizzas may not last long with this group seeing as there is no alternate food source nearby.  I ball the dough up and put it in a pan with wax paper placed over top.</p>
+<p>I turn and notice Brandy standing watching.  “I’m making some pizzas.”</p>
+<p>She looks annoyed and then smiles while looking at the pizza pans.  “I can see that.  Can I help?”</p>
+<p>“No, I’ve got it.”  I stop for a second and then something flashes into my mind.  “Is there something between you and Chris?”</p>
+<p>Brandy laughs.  “Chris?  Why would you think that?”</p>
+<p>“Sorry, I know it’s not my place to ask.  I got a strange vibe that he likes you.”</p>
+<p>“Chris doesn’t like me.  The only thing Chris wants is what every guy wants.”</p>
+<p>“What’s that?”</p>
+<p>Brandy’s face relaxes as if she were holding a cute puppy in her hands.  “Dave, you’re a good guy.   Thanks for making pizza for us.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Amy and the other girls from downstairs head up to the second floor party deck.  Amy’s boyfriend along with Richey and others are already on the deck drinking.  Soft rock plays on the radio as a relaxed mood comes over them.  The atmosphere is different than at Alexander’s party.  The underlying tension is gone.  Everyone is talking, but no one is saying anything.</p>
+<p>High school has long since been over.  The prom was almost a month ago.  The senior trip was weeks ago.  Even graduation is now becoming a memory.  All of the efforts to keep us kids safe, to remove temptation, to eliminate the chance of mistake have now ended.  Did those efforts act as a safeguard keeping us from danger or as a slingshot which is now energized?  Are we adults who can take care of ourselves or kids about to get drunk and laid?</p>
+<p>The illusion of us as a group is now apparent.  We spent most every waking moment the last four years sitting in rooms, listening to adults, some of whom appeared on occasion to be sane.  This shared experience formed a bond between us, but was that bond any different than that formed with a fellow passenger on an airplane flight?  We experienced the same turbulence, the thrill of acceleration and of flight, and also the decent back to earth.  Are we now to go our own ways only to reminiscence years later about that cool person we met on that flight once?  What was the person’s name again?</p>
+<p>No matter, tonight is our night.  This week is our week.  Beach week is upon us.  We aren’t here because we have to be here.  We are here because the girls are here, because this is their beach house.  We were at Alexander’s because there was nowhere else to go.  We’re at the girls’ beach house now because there is nowhere else we would want to be.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>I take the first two pizzas out of the oven and put them on the stovetop.  The cheese is bubbling and it is just starting to turn a golden brown and the pepperoni has begun to curl.  I cut the pizzas and put the second round into the oven and then make my way out to the deck to take a break.</p>
+<p>I head back inside and a group has gathered around the table eating.  I walk over and Melissa looks at me and then looks around.  She sees that no other chairs are available, so she moves to one side of her chair.  Smiling, I sit next to her.</p>
+<p>If there is anyone in school I should be with, it would be her.  We have the same temperament, enjoy the same music, share many of the same friends, and probably would live a long happy life together.  But those things we share doom us never to be together.  We both take life as it comes, neither of us will make the first move.  I sit there with her and yet know we will always be apart.  People are like magnets.  Too much compatibility leads to repulsion.</p>
+<p>Aaron comes in with Steve, but I don’t get up.  They have missed a lot today, but none of it I can remember at this moment.  My mind is so clear as if nothing else in the world matters.  Unlike the rest of us who have been relaxing at the beach all day, they look ready to party.  They both have a slice of pizza and lean on the kitchen counter.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Alexander wakes up and has the feeling that something is wrong.  The entire time in the beach house, he has always heard noises, but now he hears nothing.  He gets up and heads downstairs to see what is going on.  He sees that it’s dark and there is a note addressed to him on the table at the bottom of the stairs.  He opens it to see that the note is from Aris.  She says that he fell on the stairs and hit his head. She stayed with him last night but has decided to go home for the rest of the week.  Giles has taken her home and his dad has asked Giles to return the car for the day.  He is sad to see that she ends the note with “Your friend.”</p>
+<p>Alexander sits down on the floor at the bottom of the stairs.  How did things get to this point?  What did he do to deserve this treatment?  He invited his friends to stay with him as his guests, and now not one of them is here.  Aris says that she is his friend, but if she truly was his friend, wouldn’t she be here for him?  Doesn’t he need her now more than ever?  What does Aris mean?</p>
+<p>He knows what she means.  She has no intention of being his friend.  How could she be his friend and yet treat him this way?  If she truly was his friend, wouldn’t she at least apologize for treating him this way?  How could she be his friend and yet cause him this much pain?  She doesn’t want to be his friend.  She’s just saying in the cruelest way possible that she could never be anything more than a friend.</p>
+<p>You know what?  Screw her.  It is her loss.  He did everything for her, even worshipped her, and now she does this?  He is better off without her.  Alexander wonders why he tied himself to such a cruel and uncaring woman.  When she was volunteering to help homeless children, she was just being selfish.  She only did it to feel better about herself.</p>
+<p>He gets something to eat and then decides to check out the girl’s beach house hoping to find everyone else.  He starts to think about Tina again, but this time he is wondering if he has a chance with her now that Aris has left him.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>The sun has gone down and the party is just staring to rage.  I’m standing with Steve and we are leaning over the balcony nursing our beer.  After talking with Steve for a while, I see what Aaron sees in him.  Steve turns and looks towards the group of people of the deck and then turns back.</p>
+<p>Steve says, “That’s strange.”</p>
+<p>I’m not sure what he is talking about so I look at him in confusion.</p>
+<p>“Dave, take a look.  Tell me what you see.”</p>
+<p>I look over and see most of the girls from the house intermixed with a group of guys.  Tina and Brandy are drinking and talking with two guys that I don’t know.  Amy’s boyfriend is holding up a funnel and some of the other guys are pouring beer into it.  Amy is in position to funnel the beer.  The other people are randomly scattered and having fun.</p>
+<p>“I see everyone having fun.  Oh, and Amy is about to funnel.”</p>
+<p>Steve nods.  “You’re seeing with your eyes.  You should instead see with your whole body.  Look at Brandy and Tina and those guys.  What do you see?”</p>
+<p>“I see them drinking and talking.”</p>
+<p>“Look back at them but this time listen to your body.  Look at their faces and see what you feel.”</p>
+<p>I look back at them.  “I see Brandy smiling but Tina looks a little sad.  Something seems wrong.”</p>
+<p>“Now you’re starting to see.  Before you thought they were having fun, but now you are confused.  Do you know who the two guys are?”</p>
+<p>“I’m not sure, but I think they are friends of Justin’s.”</p>
+<p>“And look back at Amy now.  What do you see?”</p>
+<p>“I see her boyfriend helping her to funnel a beer, but there’s something about seeing Amy funnel the beer makes me feel sad.  She’s participating but at the same time I’m not sure she wants to do it.  It’s almost like she just making the best of it.”</p>
+<p>“It’s hard to tell what people want, but it’s easy to see what they don’t want.”</p>
+<p>“If she doesn’t want to do it, then why is she doing it?”</p>
+<p>“But she does want to do it.  If it wasn’t beer funneling it would be something else.”</p>
+<p>I look back at Amy after funneling and see her smiling.  We turn to see Justin’s truck pulling into the driveway.  He gets out of the truck and rushes up the stairs.  He looks worried but relaxes when he sees Tina and Brandy talking with the two guys.  Tina touches Brandy’s arm.  Tina walks with Brandy as she takes Justin into the back room to talk.  After the door closes, Tina and Aaron come out of the second floor living room onto the deck.</p>
+<p>Tina is about to cry.  Aaron takes her off to the side to talk.  I stand close enough to overhear that Brandy is breaking up with Justin.  Is Brandy leaving Justin to be with Chris?</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Melissa and Cindy are tired of sitting around the kitchen table talking and decide to go for a walk on the beach.  They leave the upstairs living room and see Tina alone.  Aaron had gone to get her a drink.</p>
+<p>Cindy walks over to Tina.  “Tina, we’re going for a walk.  Do you want to come?”</p>
+<p>“Yeah, I need some air, but I want to be here when Justin leaves.”</p>
+<p>Cindy nods her head.  “We’ll just go down to the beach and come back.”</p>
+<p>The three girls head towards the stairs just as Aaron is coming back with Tina’s drink.  Without asking, he follows them.</p>
+<p>I’m not interested in a walk on the beach, but don’t want to stay here only to hear some story about it later.  I can’t let Aaron have all of the fun.  I head down the stairs and catch up with them.  We cross the street to walk down near the water in the dark.  After a couple of minutes, the girls are ahead of us and are out of hearing range.</p>
+<p>“Dave, I thought you were interested in Tina, but I see you sitting with Melissa.  Are you now going after Melissa?”</p>
+<p>“No, we were just sharing a chair.  There weren’t enough.”  As I say this I realize that it is not true.  I’m interested in her but am just not assertive enough to doing anything about it.</p>
+<p>“You do know that Steve likes Melissa?”</p>
+<p>“No, I had no idea.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>No friends, no car, no party, Alexander decides it is time to take action.  He’s got enough money to call a taxi, but decides that he is man enough to walk the two miles.  What is two miles?  His normal schedule is to run for thirty minutes four times a week, so the walk for him is a vacation from exercise.  It may even give him to time to plan his next move with Tina.</p>
+<p>He feels his mind racing trying to grasp onto his situation, but then ponders what the woman on the beach told him.  He decides to trust her advice for the night and see where it leads him.  Maybe his next move should be no move.  Instead of going after Tina, maybe he should just be himself and let her come to him.  He remembers what Tina told him.  Maybe it wasn’t so much a rejection as just a statement of fact.  She said she couldn’t be with him because he already had a girlfriend.  At least that is what he remembers.</p>
+<p>If she couldn’t be with him because he has a girlfriend, will she be with him now that he has dumped Aris?  She wasn’t good for him anyway.  Change is sweet, and being with Tina will be sweeter.  He’s always had a crush on her.  He still remembers playing with her at a middle school pool party.  He always wondered what it would be like to be with her again.</p>
+<p>He feels himself walking and breathing.  The night is warm but the breeze makes it comfortable.  He stops thinking about Aris, and Tina, and the woman on the beach.  He’s just walking.  He feels something unlike anything he’s felt before.  It’s as if something was opening up or relaxing.  He feels his anger towards Aris fade with each step, replaced with happiness that she still wants to be his friend.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>As we are walking back from the beach, we see Justin trotting down the stairs.  He jumps into his truck, reverses it, and peels out.  Tina breaks from our group and runs up the stairs.  She sees Brandy on the couch looking sad.  She sits down next to her and puts her arm around her.  We all head to the party deck giving Tina time to talk with her friend.</p>
+<p>Tina finds herself in a strange role.  She had never helped Brandy get over a guy before.  It has always been Brandy helping her.  She helped Amy.  Maybe she can help her best friend too.</p>
+<p>“Brandy, I know how you feel.”</p>
+<p>Brandy stops for a second, and then moves away from Tina.  No longer feeling sad, she now feels angry.  “You know how I feel?”</p>
+<p>Tina wants to talk, to defend herself, but she stops herself and sinks back into the couch.  Confused, she doesn’t know if she should tell Brandy.  Even friends have secrets, but this is not just a secret, this is the secret.  She hasn’t told anyone this secret.  She doesn’t know if she should tell anyone, especially Brandy.</p>
+<p>“Brandy, I love you.  You are my best friend.  I never wanted to hurt you.  I never wanted to tell you – tell anyone.  I just wanted it to go away, to become ancient history.”</p>
+<p>Now confused, Brandy sits up.  “I’m puzzled, Tina.  What are you talking about?”</p>
+<p>“When you started dating Justin, I wanted to tell you, but you were so happy.”</p>
+<p>Brandy smiles, “Yeah, I know that you and Justin went out a couple of times.”</p>
+<p>Tina says nothing and takes in a deep breath.  She exhales and closes her eyes.  “It was more than that.  We went out for almost three weeks.”</p>
+<p>“Ok, three weeks.  Didn’t know it was that long, but what’s the big deal.”</p>
+<p>Tina, now wishing she had decided not to tell Brandy, now has no choice.  “Well, I’m sorry but I didn’t tell you the real reason we broke up.”  Tina sits up and cradles herself.  She feels heart beating.  “Justin had asked me to marry him.”</p>
+<p>“Marry him?  After three weeks?  That’s creepy, why didn’t you say something?”</p>
+<p>Tina, knowing her friendship with Brandy may be over, covers her face, “I had asked him to ask me.”</p>
+<p>“But why would you want to marry Justin?”</p>
+<p>“I didn’t.”  Tina puts her head back to choke back the tears.  “Not after the miscarriage.”</p>
+<p>Brandy stands up and looks down at Tina.  Tina now crying says, “Please don’t hate me.  I love you, Brandy.  I never wanted to hurt you.”</p>
+<p>Brandy sits back down next to Tina.  “Tina, I promised not to tell anyone, but I knew.  I didn’t know it was Justin, but I knew.  That’s why I invited you to that weekend with my family at the beach junior year.  That’s why I’ve been trying to protect you.”  Tina looks up at Brandy and then snuggles into her side.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Aaron, Steve, and I are sitting on chairs and Tina and Brandy are sitting on opposite ends of the couch.  Tina looks a little sad but Brandy has a slight smile.  The people partying on the patio had left to go downstairs.  We sit upstairs listening to soft rock on the radio.</p>
+<p>I look over at Brandy and then feel myself smiling.  As if by magic I find myself and Brandy singing along with the song.  I’ve sung in the car before, but always an uncomfortable self-aware singing.  Now I feel one with the song, nothing else exists.  I start to hear others singing too.  The song finishes and I see Alexander enter the living room.</p>
+<p>There is something different about Alexander.  I’m not sure what it is.  It’s like he’s a normal person.  I like normal people, but I’ve never liked him.  I’ve always felt he was on edge, just about to rage at the slightest grievance, even if misperceived, even if intentionally misperceived.</p>
+<p>I look at him and then look over at the couch.  He walks over and sits on the couch between Tina and Brandy.  Brandy ignores him, but I see Tina relax, maybe even begin to smile.</p>
+<p>The next song begins to play.  It’s a song that I’ve heard a hundred times, but hearing it now transforms it.  It asks if we feel like making love.  As we sing that song, I feel it become part of me.  This moment will always exist within me.  I look over to see that Alexander has joined in our singing.  Something unexpected is happening.  Maybe Alexander is just like everyone else.</p>
+<p>Tina leans over and says something in Alexander’s ear.  He looks surprised, and then asks Brandy “are you okay?”  She nods her head and shrugs.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Later that evening, I sit on the deck in the dark with Brandy, Tina, Alexander, Ritchie, and Chris.  The full moon illuminating the sky.  We tell stories from our childhood and talk about times past.</p>
+<p>Chris interrupts, “What the hell?  You guys are telling boy scout stories, water gun fight stories, and girl scout stories.  When I was your age, we used to do cool stuff.”</p>
+<p>We all stop and look at Chris.  Tina laughs and says, “Chris, you ain’t done crap.  What are you talking about?  What, did you cheat off someone’s paper one time?”</p>
+<p>“No, I’ll give you an example,” Chris stammers.  “You guys talk about passing people on Bayou Boulevard in the parking lane.  That ain’t crap.  We used to go out on Saturday night and take Gaborone Hill.  I’m not just talking about taking it, I’m talking about catching air.  Not like all this hot air here like talking about climbing into the bathroom window at Rosie O’ Grady’s so you don’t have to pay the cover.”</p>
+<p>Ritchie puts his hand on Chris’s shoulder and says, “Okay, you want to hear a story?  You want to hear something messed up?  I bet you no Sister told you this.  Do you remember when I tried out for the soccer team?  I was one of the few people who knew that the ball should be kicked into the opponent’s goal and not ours.  Even though I had playing my whole life, I didn’t make it.  Here’s the true story about that.  My Boy scout group was camping out north of Pensacola one time…”</p>
+<p>Chris snorts and says, “I knew it, another Boy Scout story.”</p>
+<p>Then Tina says, “Shut up, Chris, I want to hear this.”</p>
+<p>So Ritchie continues, “Yeah, you remember that soccer coach?”  Ritchie points at Chris, “He came to that party at your house when your parents were on vacation.  That party sucked, but we started to have a good time after he arrived, for some strange reason.”</p>
+<p>Chris, nods his head, “Yeah, I remember him.”</p>
+<p>Ritchie continues, “Well, he is in jail now.  After the season they picked him up.  It seems that he was a bit of a farmer.  The school doesn’t pay coaches that well, so he did a little medicinal farming on the side.  We happened to run into him in the woods. The next thing I knew, I was cut from the team.  Who could I tell?  Even if I had told somebody, would it have been worth it just to play soccer at the school?”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>As it nears midnight, the party begins to break up.   The girls all retreat to the privacy of their rooms, but Richey doesn’t leave.  Instead he helps me pull out the sofa bed.  Richey was hanging out on the patio most of the night, and I assumed he would head back to Alexander’s, not thinking that Alexander probably booted him out too.  I thought I was going to get the sofa bed to myself for the night.</p>
+<p>“Hey Richey, aren’t you staying at Alexander’s?”</p>
+<p>“No, he kept asking everyone for money.  Dude’s loaded.  Why does he need our money?”</p>
+<p>“So did anyone pay him?”</p>
+<p>Richey shakes his head no and laughs.</p>
+<p>Fully clothed, I lay down on the bed.  Richey lies down on the other side and faces the window.</p>
+<p>“Richey, how long have you known Aaron?”</p>
+<p>“Dude, I’ve known him since kindergarten.  When he walked into the class the first time, all of the girls swarmed him.”  He turns over and looks up at the ceiling.  “In elementary school, he had a word of the day.  He’d go around using the word even when it made no sense.”</p>
+<p>Then Richey thinks for a moment.  “I used to go BB hunting with Alexander until he accidently shot himself in the hand and his dad took away the guns.”</p>
+<p>Then Richey gets quiet for a moment.  His breathing slows and becomes deep.  “I used to have a younger brother named Sam. We were the best of friends and did everything together as kids.  Then one day he had a fever and Mom and Dad took him to the doctor.  They told me he was going away for a little while.  I never had a chance to say goodbye to him.  I came home from tee-ball practice.  Mom and Dad told me to sit down.  Then they told me Sam was in Heaven like Queenie.”</p>
+<p>Richey stops for a second.  “Queenie was our dog.  My parents didn’t know, but when I was a kid, I left the side gate open and Queenie ran out.  The next day a neighbor found Queenie run over on the interstate.”  Richey stops again and gives a slight laugh.  “I have always pictured Sam running out the side gate and getting run over on the highway.  If only I had stayed home from tee-ball, I could have saved him.”</p>
+</section>
+<section class="chapter" id="chapter-06" data-label="Chapter 6: TUESDAY MORNING">
+<span class="ch-label">Chapter 6</span>
+<h1 class="chapter-title">TUESDAY MORNING</h1>
+<p class="meta">&quot;We are what we repeatedly do. Excellence, then, is not an act, but a habit.&quot; - Aristotle</p>
+<p>I wake up to laughing downstairs. Sounds like Richey and the girls. Light coming through the window. For the first time in forever, I wake up excited. Yesterday was crazy - swimming, chicken fight, singing with everyone. Maybe I&#x27;m not just watching anymore.</p>
+<p>I put on shorts and a shirt. Head to the kitchen to make something for everyone. Still got groceries in the fridge. Pancakes might be good.</p>
+<p>Richey stumbles in. His hair is sticking up everywhere.</p>
+<p>&quot;Dude, my head feels like someone used it for batting practice.&quot;</p>
+<p>&quot;How much did you drink last night?&quot;</p>
+<p>&quot;Not enough to forget, too much to function.&quot; He&#x27;s looking through cabinets. &quot;You mind if I make some eye openers? Hair of the dog.&quot;</p>
+<p>He pulls out orange juice and rum. &quot;Eye openers?&quot;</p>
+<p>&quot;Breakfast drinks. Trust me, they help. It&#x27;s beach week. Normal rules don&#x27;t apply.&quot;</p>
+<p>Amy comes up from downstairs. More relaxed than I&#x27;ve seen her. &quot;Something smells amazing up here.&quot;</p>
+<p>&quot;Dave&#x27;s making breakfast,&quot; Richey says. He hands her a drink. &quot;And I&#x27;m making breakfast medicine.&quot;</p>
+<p>Amy takes a sip. Makes a face. &quot;This tastes like liquid candy with a kick.&quot;</p>
+<p>&quot;That&#x27;s the point.&quot; Richey grins.</p>
+<p>Tina and Brandy come out of their room. Melissa and Cindy too. Everyone sits around the kitchen table. I serve pancakes and fruit. For a minute, it feels like we&#x27;re actually friends. Not just classmates.</p>
+<p>&quot;So what&#x27;s everyone planning to study in college?&quot; Amy asks.</p>
+<p>Brandy thinks. &quot;I want to teach kindergarten. I know it sounds simple, but I love kids. Help them learn to read.&quot;</p>
+<p>&quot;That&#x27;s not simple,&quot; I say. Surprised I spoke up. &quot;That&#x27;s probably the most important job there is.&quot;</p>
+<p>She smiles. Makes my stomach flip. &quot;Thanks, Dave. What about you?&quot;</p>
+<p>I never talked about future plans with them. &quot;I don&#x27;t know. Maybe journalism. But I don&#x27;t want to just report things. Want to build something.&quot;</p>
+<p>&quot;Like what?&quot; Tina asks.</p>
+<p>&quot;Don&#x27;t know. Maybe write stories that matter. Help people understand each other.&quot; I&#x27;m getting weird. Try to stop. &quot;What about you?&quot;</p>
+<p>&quot;Psychology, I think. Want to understand why people do what they do. Help them figure themselves out.&quot; She looks at Brandy. &quot;People are complicated.&quot;</p>
+<p>Richey raises his glass. &quot;To being complicated.&quot;</p>
+<p>We all clink glasses. For a minute I feel like I belong somewhere.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Most people head to the beach. I stay in the kitchen cleaning up. My way of helping. Also need space to think. Richey helps dry dishes.</p>
+<p>&quot;You okay, man?&quot;</p>
+<p>&quot;Getting there. Listen, Dave, yesterday was cool. Seeing you actually participate.&quot;</p>
+<p>I feel weird. &quot;I&#x27;m trying.&quot;</p>
+<p>&quot;Good. Tonight could be epic if you&#x27;re up for it.&quot;</p>
+<p>Before I can ask what he means, Tina shows up. She changed into a different bikini - navy blue with white stuff. Hair in a ponytail. Looks like a magazine.</p>
+<p>&quot;Dave, want to come to the beach? Amy and I are walking to the pier.&quot;</p>
+<p>I look at Richey. He nods. &quot;Sure, let me grab my stuff.&quot;</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Walking to the pier gives me time to talk to Tina without everyone around. Amy walks ahead. Gives us space. I&#x27;m more relaxed than I&#x27;ve been all week.</p>
+<p>&quot;So tell me something I don&#x27;t know about you,&quot; Tina says.</p>
+<p>&quot;Like what?&quot;</p>
+<p>&quot;I don&#x27;t know. What do you do when you&#x27;re not in school? Hobbies, secret talents?&quot;</p>
+<p>I think about real life. Reading, writing in my journal, working at Safeway. Sounds boring compared to everyone else.</p>
+<p>&quot;I work at Safeway,&quot; I say. &quot;And I read a lot.&quot;</p>
+<p>&quot;What kind of stuff?&quot;</p>
+<p>&quot;Everything. Fiction, philosophy, magazines. Stories about people figuring things out.&quot;</p>
+<p>She nods. &quot;Makes sense. You seem like someone who thinks about things.&quot;</p>
+<p>We get to the pier. Walk out over the water. Morning is perfect - clear sky, breeze, ocean going forever. Amy finds a spot to sit and read. Leaves me and Tina to walk to the end.</p>
+<p>&quot;Can I ask you something?&quot; Tina says. Leans against the rail.</p>
+<p>&quot;Sure.&quot;</p>
+<p>&quot;Why do you hold yourself back so much? You seem interesting, but you&#x27;re always on the edges.&quot;</p>
+<p>Catches me off guard. &quot;I don&#x27;t know. Maybe because I&#x27;m afraid of saying the wrong thing. Or not being cool enough.&quot;</p>
+<p>&quot;Cool enough for what?&quot;</p>
+<p>&quot;For this. For you guys. For girls like you.&quot;</p>
+<p>She turns to face me. &quot;Girls like me?&quot;</p>
+<p>I realize how that sounded. Face burning. &quot;I didn&#x27;t mean... I just meant...&quot;</p>
+<p>&quot;Dave.&quot; She touches my arm. &quot;You&#x27;re overthinking everything. We invited you because we wanted you here. Not some version of you. You.&quot;</p>
+<p>I look at her hand on my arm. Then at her face. For a second, everything narrows down to just this.</p>
+<p>&quot;Tina?&quot; Amy calls from down the pier. &quot;My mom&#x27;s calling.&quot;</p>
+<p>The moment breaks. Something shifted though. As we walk back to Amy, Tina falls into step beside me. I can feel the space between us humming.</p>
+<p>Amy&#x27;s ending her call. Looks troubled.</p>
+<p>&quot;Everything okay?&quot; Tina asks.</p>
+<p>&quot;It&#x27;s about tonight. Some parents have been talking. They&#x27;re worried about the keg party.&quot;</p>
+<p>Tina&#x27;s face falls. &quot;What kind of concerned?&quot;</p>
+<p>&quot;The kind where my mom spent twenty minutes asking about supervision and liability and whether we&#x27;re really mature enough to handle this responsibility.&quot;</p>
+<p>We walk back toward the house in relative silence, but I can see the wheels turning in Tina&#x27;s head. This party means something to her - maybe to all of them - and I find myself wanting to help make it work.</p>
+<p>Back at the house, Tina disappears to call her mother while the rest of us settle on the deck. I can hear her voice through the sliding door, measured and persuasive, like she&#x27;s negotiating something important. When she comes back out, she looks determined.</p>
+<p>&quot;The keg comes tomorrow,&quot; she announces. &quot;But we need to prove we can handle tonight responsibly.&quot;</p>
+<p>&quot;What&#x27;s that mean?&quot; Richey asks.</p>
+<p>&quot;It means tonight&#x27;s our test. We keep everyone here. No one drives. Show the parents we can handle ourselves.&quot;</p>
+<p>I watch her organize everyone. Like a general planning a campaign. She&#x27;s not just pretty - she&#x27;s smart. Makes things happen.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Later, Brandy helps me clean up lunch dishes. I&#x27;m washing. She&#x27;s drying. Standing close enough I can smell her shampoo. Something floral. Makes my head spin.</p>
+<p>&quot;Dave, can I ask you something?&quot;</p>
+<p>&quot;Sure.&quot;</p>
+<p>She&#x27;s quiet. Carefully drying a plate. &quot;You think it&#x27;s wrong to want simple things? Everyone talks about big careers and changing the world. But what if all you want is a family and be happy?&quot;</p>
+<p>I turn to look at her. Surprised by the serious tone. &quot;There&#x27;s nothing wrong with that. Maybe that is changing the world. One family at a time.&quot;</p>
+<p>&quot;Justin thinks I&#x27;m wasting my potential. Says teaching kindergarten is settling.&quot;</p>
+<p>&quot;What do you think?&quot;</p>
+<p>She sets down the plate. Leans against the counter. &quot;I think about my mom sometimes. She gave up her career when she had kids. I used to think that was sad. But watching her with us... how happy she is helping with homework or taking care of us when we&#x27;re sick... Maybe there are different ways to matter.&quot;</p>
+<p>She&#x27;s not really talking about career choices. She&#x27;s trying to figure out what kind of life she wants. What kind of person she wants to be with. Maybe trying to figure out if someone like me could be part of that life.</p>
+<p>&quot;You know what I think?&quot; I say. Surprising myself. &quot;You should do whatever makes you feel like you&#x27;re becoming who you want to be.&quot;</p>
+<p>She smiles. But there&#x27;s sadness in it. &quot;The problem is figuring out who that person is.&quot;</p>
+<p>&quot;Maybe that&#x27;s what this week is about. Figuring out who we are when no one&#x27;s telling us who we should be.&quot;</p>
+<p>We finish dishes in comfortable silence. I catch her looking at me a few times. Can&#x27;t read her expression. When we&#x27;re done, she touches my arm.</p>
+<p>&quot;Thanks for listening, Dave. And for making breakfast. You&#x27;re going to make someone very happy someday.&quot;</p>
+<p>She heads toward the beach. I wonder if she realizes she might be that someone. Or if I&#x27;m just imagining things.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Later that evening, Tina&#x27;s phone rings. Her mom. She goes into the bedroom for privacy.</p>
+<p>&quot;Hi, Mom.&quot;</p>
+<p>&quot;Hi, honey. How&#x27;s everything going?&quot;</p>
+<p>Tina looks out the window. People laughing and dancing on the deck. &quot;It&#x27;s great. Everyone&#x27;s having a good time.&quot;</p>
+<p>&quot;That&#x27;s wonderful. I wanted to check in and remind you that I&#x27;ll bring that keg tomorrow afternoon like we discussed.&quot;</p>
+<p>Pause. Tina can hear hesitation in her mother&#x27;s voice.</p>
+<p>&quot;Mom? Is everything okay?&quot;</p>
+<p>&quot;Well, I&#x27;ve been thinking. I&#x27;m wondering if it&#x27;s really appropriate for me to provide alcohol. I know you&#x27;re all eighteen, but it&#x27;s still illegal.&quot;</p>
+<p>Tina sits on the bed. Panic starting. &quot;Mom, we already told everyone about the party. They&#x27;re expecting it.&quot;</p>
+<p>&quot;I know, sweetheart. But what if something happens? What if someone gets hurt or the police come?&quot;</p>
+<p>&quot;Mom, nothing&#x27;s going to happen. We have everything under control.&quot;</p>
+<p>But as she says it, she realizes she doesn&#x27;t know if that&#x27;s true. Today was fine. Tonight, who knows?</p>
+<p>&quot;I just think maybe we should skip the keg. I can bring some sodas instead.&quot;</p>
+<p>Tina looks out at the deck again. Sees people already drinking beers they brought. Bottles scattered everywhere. &quot;Mom, it&#x27;s too late for that. People already brought their own stuff. At least with the keg we could control how much everyone drinks.&quot;</p>
+<p>Her mother sighs. &quot;I don&#x27;t know, Tina. I&#x27;m having second thoughts.&quot;</p>
+<p>This is a disaster. If her mom backs out now, Tina looks like an idiot. Plus everyone will just drink harder liquor instead.</p>
+<p>&quot;Mom, trust me. Please. We&#x27;ll be careful. No one will drive. We&#x27;ll clean up everything. You won&#x27;t regret this.&quot;</p>
+<p>Long pause.</p>
+<p>&quot;Alright. But Tina, if anything goes wrong-&quot;</p>
+<p>&quot;Nothing will go wrong. I promise.&quot;</p>
+<p>She hangs up. Sits on the edge of the bed. Her mom&#x27;s right to worry. Things feel different tonight. Wilder. Less controlled.</p>
+<p>She hears voices getting louder outside. Someone cranking music. A girl laughing too hard.</p>
+<p>Maybe inviting everyone was a mistake.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>I&#x27;m out on the deck when Brad comes up to me. He&#x27;s been drinking since we got here. His eyes are glassy.</p>
+<p>&quot;Dude, this is awesome.&quot;</p>
+<p>&quot;Yeah. Pretty cool.&quot;</p>
+<p>He leans in closer. Whispers, &quot;You hitting on her?&quot;</p>
+<p>&quot;What?&quot;</p>
+<p>&quot;Brandy. You two were all cozy doing dishes. You making your move?&quot;</p>
+<p>I want to punch him. But that would just make things worse. &quot;We&#x27;re friends, Brad.&quot;</p>
+<p>He laughs. &quot;Right. Friends. That&#x27;s what we all say.&quot; He pats my shoulder too hard. &quot;Don&#x27;t wait too long, man. Someone else might move in.&quot;</p>
+<p>He walks away. Leaves me standing there mad. Not just at him. At myself for caring what he thinks.</p>
+<p>I look for Brandy. She&#x27;s sitting on the sand with some other girls. Talking quietly. Looking serious. I want to go over but don&#x27;t want to interrupt.</p>
+<p>Instead I watch the ocean. Dark waves rolling in. Sounds peaceful compared to the party noise behind me.</p>
+<p>&quot;Thinking deep thoughts?&quot;</p>
+<p>I turn around. It&#x27;s Tina.</p>
+<p>&quot;Just watching the waves.&quot;</p>
+<p>&quot;Mind if I join you?&quot;</p>
+<p>&quot;Sure.&quot;</p>
+<p>She stands next to me. Close enough I can smell her perfume. Something expensive. Not like the drugstore stuff most girls wear.</p>
+<p>&quot;You having a good time?&quot; she asks.</p>
+<p>&quot;Yeah. Thanks for including me.&quot;</p>
+<p>&quot;I&#x27;m glad you came. You seem different from the others.&quot;</p>
+<p>&quot;Different how?&quot;</p>
+<p>She thinks about it. &quot;Less desperate. Like you don&#x27;t need everyone to like you.&quot;</p>
+<p>I laugh. &quot;Trust me. I want people to like me.&quot;</p>
+<p>&quot;Maybe. But you don&#x27;t change yourself to make it happen.&quot;</p>
+<p>I don&#x27;t know what to say to that. We stand there watching people party behind us. Music getting louder. Someone just turned on the deck lights.</p>
+<p>&quot;Dave?&quot;</p>
+<p>&quot;Yeah?&quot;</p>
+<p>&quot;Thanks for helping today. With lunch and everything. Most guys would have just sat around complaining.&quot;</p>
+<p>Before I can respond, Brad comes back over. Even drunker now.</p>
+<p>&quot;Hey, Tina! Great party! This place is awesome!&quot;</p>
+<p>&quot;Thanks, Brad.&quot;</p>
+<p>He looks between us. Grins. &quot;Am I interrupting something?&quot;</p>
+<p>&quot;We&#x27;re just talking,&quot; I say.</p>
+<p>&quot;Cool, cool.&quot; But he doesn&#x27;t leave. Just stands there swaying slightly.</p>
+<p>Tina looks annoyed. &quot;Brad, maybe you should grab some water.&quot;</p>
+<p>&quot;Water? Come on, Tina. The night&#x27;s young!&quot; He puts his arm around her shoulder. She steps away.</p>
+<p>&quot;Seriously, Brad. You need to slow down.&quot;</p>
+<p>&quot;Don&#x27;t be such a mom. We&#x27;re celebrating!&quot;</p>
+<p>I can see this going bad fast. &quot;Hey Brad, want to check out the beach?&quot;</p>
+<p>He looks at me like I&#x27;m crazy. &quot;The beach? Dude, the party&#x27;s up here.&quot;</p>
+<p>&quot;Yeah but the waves sound cool.&quot;</p>
+<p>He rolls his eyes. &quot;You go listen to waves. I&#x27;m staying where the action is.&quot;</p>
+<p>He staggers away toward a group of girls. I see them exchange glances as he approaches.</p>
+<p>&quot;He&#x27;s going to be a problem,&quot; Tina says.</p>
+<p>&quot;What do you mean?&quot;</p>
+<p>&quot;Guys like Brad. They don&#x27;t know when to stop. They think everyone else should keep up with them.&quot;</p>
+<p>She&#x27;s right. I can already see it happening. Brad getting pushier. Other people getting uncomfortable. The whole night going sideways.</p>
+<p>&quot;Maybe we should cut him off?&quot;</p>
+<p>&quot;How? Take his beer away? He&#x27;ll just throw a fit.&quot;</p>
+<p>Good point. We can&#x27;t police everyone. But we can&#x27;t just watch things fall apart either.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Down at the beach, Melissa and Cindy sit under an umbrella. Both reading books. Wearing one-piece suits that actually cover them up.</p>
+<p>&quot;I brought three novels,&quot; Melissa says. &quot;Finally have time to read for fun.&quot;</p>
+<p>&quot;What&#x27;s that one about?&quot;</p>
+<p>&quot;Woman thinks she wants one thing. Finds out she wants something else.&quot; She adjusts her sunglasses. &quot;Yours?&quot;</p>
+<p>&quot;Romance.&quot; Cindy grins. &quot;Sometimes you need a happy ending.&quot;</p>
+<p>They go back to reading. Comfortable with quiet. After being the quiet ones at school for four years, it&#x27;s nice not having to perform.</p>
+<p>&quot;Melissa?&quot; Cindy says after a while. &quot;You ever wonder what would&#x27;ve happened if we were braver in high school?&quot;</p>
+<p>&quot;What do you mean?&quot;</p>
+<p>&quot;Like if we actually talked to people. Went to parties. Dated.&quot;</p>
+<p>Melissa looks at the other girls splashing in the waves. &quot;Maybe. But look at them. All that drama with boys and gossip. Maybe we were smart to avoid it.&quot;</p>
+<p>&quot;Or maybe we missed out on the whole experience.&quot;</p>
+<p>Melissa thinks about this. &quot;We got good grades. Going to good colleges. That&#x27;s not nothing.&quot;</p>
+<p>&quot;I know. But sometimes I wonder if we were too scared to really live.&quot;</p>
+<p>They watch Amy laugh at something one of the other girls said. She looks happy. Free. Different from how she acts at school.</p>
+<p>&quot;It&#x27;s not too late,&quot; Melissa says. &quot;We have this whole week.&quot;</p>
+<p>&quot;To do what?&quot;</p>
+<p>&quot;I don&#x27;t know. Talk to people. Be different than we&#x27;ve always been.&quot;</p>
+<p>Cindy looks scared by the idea. &quot;What if we don&#x27;t know how?&quot;</p>
+<p>&quot;What if we learn?&quot;</p>
+<p>&quot;True.&quot; Cindy follows her gaze. &quot;But look at them. They seem to know something we don&#x27;t.&quot;</p>
+<p>&quot;Like what?&quot;</p>
+<p>&quot;Like how to be happy without overthinking everything.&quot;</p>
+<p>Melissa considers this. &quot;Maybe this week is our chance to figure that out.&quot;</p>
+<p>As the day winds toward evening, I realize something has changed for me. I&#x27;m not just watching this beach week happen anymore. I&#x27;m part of it. And for the first time in my life, I want to prove I belong here.</p>
+</section>
+<section class="chapter" id="chapter-07" data-label="Chapter 7: WEDNESDAY MORNING">
+<span class="ch-label">Chapter 7</span>
+<h1 class="chapter-title">WEDNESDAY MORNING</h1>
+<p class="meta">&quot;The real test is not whether you avoid this failure, because you won&#x27;t. It&#x27;s whether you let it harden or shame you into inaction, or whether you learn from it; whether you choose to persevere.&quot; - Barack Obama</p>
+<p>I wake up Wednesday morning. House is dead quiet. Too quiet after yesterday.</p>
+<p>Check my watch. Seven-thirty. Can&#x27;t get back to sleep. My head keeps going over yesterday. Tina. Brandy. Feeling like maybe I actually fit somewhere.</p>
+<p>I slip out of bed. Don&#x27;t want to wake Richey. He&#x27;s snoring.</p>
+<p>In the kitchen, I make coffee. Think about today. Tomorrow&#x27;s our last full day. Time&#x27;s going fast.</p>
+<p>Step out on the deck. Look at the ocean. Clouds building up. Something feels different. Like before a storm.</p>
+<p>&quot;You&#x27;re up early.&quot;</p>
+<p>Amy comes up from downstairs. Hair messy. Oversized shirt. Looks younger like this.</p>
+<p>&quot;Couldn&#x27;t sleep. Coffee?&quot;</p>
+<p>&quot;Please.&quot; She sits in a deck chair. &quot;I keep thinking about yesterday. What everyone said about college and stuff.&quot;</p>
+<p>&quot;Having second thoughts about pre-med?&quot;</p>
+<p>She&#x27;s quiet. Takes the coffee mug. &quot;Not second thoughts. But maybe... I don&#x27;t know. I&#x27;ve been so focused on grades I never stopped to think if I actually want to be a doctor.&quot;</p>
+<p>&quot;What would you want? If you could choose anything?&quot;</p>
+<p>&quot;That&#x27;s the problem. I don&#x27;t know. I&#x27;ve been so busy being responsible that I forgot what I actually like.&quot;</p>
+<p>We sit there watching the ocean wake up. Few joggers on the beach. Fishing boats way out there.</p>
+<p>&quot;Amy, can I ask you something?&quot;</p>
+<p>&quot;Sure.&quot;</p>
+<p>&quot;You think we&#x27;re all pretending we have more figured out than we do?&quot;</p>
+<p>She laughs. But not like it&#x27;s funny. &quot;Dave, I think we&#x27;re all scared that everyone else got some manual for being eighteen and we didn&#x27;t.&quot;</p>
+<p>&quot;Yeah. Exactly.&quot;</p>
+<p>&quot;Weird thing is, this week&#x27;s the first time I felt like maybe that&#x27;s okay. Maybe nobody has it figured out.&quot;</p>
+<p>Voices from inside. Tina and Brandy are awake. Amy and I look at each other. We just shared something real.</p>
+<p>&quot;Thanks for the coffee,&quot; she says. Gets up. &quot;And Dave? You&#x27;re doing better than you think.&quot;</p>
+<p>She heads inside. I stay on the deck thinking. Maybe growing up isn&#x27;t becoming someone different. Maybe it&#x27;s getting comfortable with who you already are.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>When I go back inside, the kitchen&#x27;s alive. Tina&#x27;s making eggs. Brandy&#x27;s setting out plates. They look comfortable together. Years of friendship. But they make space for me without making it weird.</p>
+<p>&quot;Morning, chef,&quot; Tina says. Nods toward the coffee. &quot;Thanks for getting that started.&quot;</p>
+<p>&quot;No problem. Need help?&quot;</p>
+<p>&quot;Can you wake up the guys?&quot; Brandy asks. &quot;Aaron and Steve got here late last night. They&#x27;re downstairs. Making enough breakfast for everyone.&quot;</p>
+<p>I head downstairs. Aaron and Steve are crashed on the pull-out couch. Takes some work to get them conscious.</p>
+<p>&quot;Dude, what time is it?&quot; Aaron mumbles.</p>
+<p>&quot;Eight-thirty. Brandy&#x27;s making breakfast.&quot;</p>
+<p>&quot;Brandy&#x27;s here?&quot; Steve sits up fast. Then grabs his head. &quot;Ow. Why is she here?&quot;</p>
+<p>&quot;She broke up with Justin. It&#x27;s been complicated.&quot;</p>
+<p>Aaron processes this. Still half asleep. &quot;So she&#x27;s single?&quot;</p>
+<p>&quot;Aaron, don&#x27;t be an idiot. She just got out of a three-year relationship. She doesn&#x27;t need you hitting on her.&quot;</p>
+<p>&quot;I&#x27;m not gonna hit on her. I&#x27;m just... available if she needs comfort.&quot;</p>
+<p>Steve laughs. &quot;Yeah, that&#x27;s not hitting on her at all.&quot;</p>
+<p>As we head upstairs, I realize things are about to change. Aaron and Steve missed everything. The way we&#x27;ve been building trust. They&#x27;re coming in with different expectations.</p>
+<p>At breakfast, everyone sits around the small table. I watch how it goes. Aaron&#x27;s being charming. But there&#x27;s competition now that wasn&#x27;t there before. Steve keeps making jokes that are too loud. Trying too hard.</p>
+<p>&quot;So what&#x27;s the plan for today?&quot; Aaron asks. &quot;I need to make up for lost time.&quot;</p>
+<p>&quot;We were thinking bikes,&quot; Amy says. &quot;Ride down to the lighthouse. Nice coast route.&quot;</p>
+<p>&quot;Or,&quot; Steve says, &quot;we could start partying. It&#x27;s Wednesday. Running out of time to celebrate.&quot;</p>
+<p>Tina and Brandy look at each other. They&#x27;re not ready for party mode. But don&#x27;t want to seem uptight.</p>
+<p>&quot;Why not both?&quot; Tina says. &quot;Bike ride this morning. Beach this afternoon. Party tonight?&quot;</p>
+<p>Everyone agrees. But I can feel tension. We&#x27;re not the same group we were yesterday.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>At the bike rental place, the group splits. Natural lines. Tina, Brandy, Amy, and me take the coast path. Go slow. Talk. Aaron, Steve, Richey, and some other girls head into town. Looking for places to drink.</p>
+<p>&quot;This is nice,&quot; Tina says. Riding next to me. &quot;Peaceful.&quot;</p>
+<p>&quot;Yeah. Although we&#x27;re splitting into different groups.&quot;</p>
+<p>&quot;Maybe that&#x27;s natural,&quot; Brandy says. &quot;People want different things.&quot;</p>
+<p>&quot;What do you want?&quot; I ask her.</p>
+<p>She&#x27;s quiet. Steering around a family with little kids. &quot;I want to figure out who I am when I&#x27;m not half of a couple. I&#x27;ve been &#x27;Justin&#x27;s girlfriend&#x27; so long I forgot what it&#x27;s like to just be Brandy.&quot;</p>
+<p>&quot;You&#x27;re doing pretty well,&quot; Amy says. &quot;You seem more... yourself than in a long time.&quot;</p>
+<p>&quot;Thanks. It&#x27;s scary but exciting.&quot;</p>
+<p>We ride quiet for a while. I think about how much everyone&#x27;s changed since Monday. Or maybe we haven&#x27;t changed. Maybe we&#x27;re just showing who we really are when we&#x27;re not performing.</p>
+<p>At the lighthouse, we climb to the top. Look out over the ocean. From up here, the beach house looks tiny. Our problems seem smaller.</p>
+<p>&quot;You know what&#x27;s weird?&quot; Tina says. Leaning against the railing. &quot;In two months, we&#x27;ll all be different places. Different colleges. Different friends. This might be the last time we&#x27;re all together.&quot;</p>
+<p>&quot;That&#x27;s depressing,&quot; Brandy says.</p>
+<p>&quot;Or precious,&quot; Amy says. &quot;Maybe knowing it won&#x27;t last is what makes it special.&quot;</p>
+<p>I think about this as we head back down. Beach week being temporary is part of what makes it intense. We&#x27;re trying to fit a lifetime of memories into a few days.</p>
+<p>Back at the house, the party crowd returned with supplies. Multiple cases of beer. Chips. Mixers. The mood shifted from peaceful morning to frantic.</p>
+<p>&quot;Tonight&#x27;s going to be epic!&quot; Steve announces. Opens a beer. It&#x27;s barely noon. &quot;I called some friends from other schools. They&#x27;re driving down.&quot;</p>
+<p>Tina looks alarmed. &quot;How many friends?&quot;</p>
+<p>&quot;Just a few. Maybe ten or fifteen.&quot;</p>
+<p>&quot;Steve, this is supposed to be our group. I promised my mom we&#x27;d keep it small.&quot;</p>
+<p>&quot;Relax, Tina. It&#x27;s beach week. Your mom expects chaos.&quot;</p>
+<p>But I can see worry in her eyes. The keg party tonight is supposed to be our big celebration. It&#x27;s turning into something bigger than we planned.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Later that afternoon, everyone else naps or hangs on the beach. Tina pulls me aside.</p>
+<p>&quot;I need to ask you something. Tonight, when things get crazy - and they&#x27;re going to get crazy - will you help me keep an eye on things?&quot;</p>
+<p>&quot;What do you mean?&quot;</p>
+<p>&quot;Make sure nobody drives drunk. Make sure the house doesn&#x27;t get trashed. Make sure Brandy doesn&#x27;t do something stupid with the first guy who pays attention to her. Just... help me be responsible while everyone else is being irresponsible.&quot;</p>
+<p>&quot;Of course. But Tina, what if we can&#x27;t control it?&quot;</p>
+<p>&quot;Then I&#x27;m in serious trouble with my mom. And this whole week was a mistake.&quot; She looks at everyone on the deck. &quot;I want people to have fun. But I want them to be safe. Sometimes those things don&#x27;t go together.&quot;</p>
+<p>&quot;We&#x27;ll figure it out,&quot; I tell her. But I&#x27;m not sure I believe it.</p>
+<p>As evening starts, I can feel energy building. People getting dressed up. Pre-gaming with drinks. Music louder than all week. There&#x27;s excitement but also tension.</p>
+<p>Brandy comes out of the bedroom wearing a navy blue dress. Simple but stunning. Brings out her eyes. She did her hair and makeup. Looks beautiful but vulnerable.</p>
+<p>&quot;How do I look?&quot; she asks.</p>
+<p>&quot;Amazing,&quot; everyone says. But I catch the look between Amy and Tina. Brandy&#x27;s dressed like someone trying to forget a serious relationship. That could be trouble.</p>
+<p>Aaron steps up immediately. He&#x27;s been flirting all day. &quot;Brandy, you look incredible. Want me to make you a drink?&quot;</p>
+<p>&quot;Sure,&quot; she says. But there&#x27;s something reckless in her voice. Makes me worried.</p>
+<p>As the sun sets and the real party begins, I realize tonight&#x27;s going to test everything we built this week. Question is whether we&#x27;ll pass that test. Or whether some things are too fragile to survive the chaos we&#x27;re about to unleash.</p>
+</section>
+<section class="chapter" id="chapter-08" data-label="Chapter 8: END OF THE BEGINNING">
+<span class="ch-label">Chapter 8</span>
+<h1 class="chapter-title">END OF THE BEGINNING</h1>
+<p>Dave gets back to the beach house but sees no one, so he heads up stairs and decides to take another nap.  Dave lies down in Tina and Brandy’s bed.  Thoughts rush through his head.  He’s had a chance in the last few months to talk and interact with many young women, which has led him to be more confused than ever.  What the girls he knows say they want and want they do don’t seem to be connected.  They say they want a good guy who treats them with respect and love, but he sees them getting drunk and hooking up with guys who treat them like crap.</p>
+<p>Is that what it takes for a guy to get a girl?  Does the guy need to treat the girl poorly?  I’m surrounded on all sides by available young teenage women, all of whom are nice to me.  Amy’s invite was a once in a life time gift.  Tina could have booted me out the moment I stepped in the door.  Melissa has made every indication that she would like to at least date.  Cindy even one time told me that she was open to dating anyone as long as they asked her and treated her with respect.  Was she asking me to ask her?</p>
+<p>I’m not sure what to think, but I feel like a man dying of thirst while choking on a glass of water.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>The upstairs’ girls head back from the beach.  They see activity in the downstairs and decide to investigate.  Aaron, Steve, Alexander, Amy, and her boyfriend are playing pool and drinking beer.  Alexander and Amy’s boyfriend are talking and they decide that they must get all of the girls drunk, so they get them all a beer and sets up a game of quarters on a large table in the pool room.</p>
+<p>Brandy has a little too much to drink and flirts with Alexander.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Mike and most of the people from his house show up.  The sun is just setting and now the party deck is packed with people old enough to get drafted but too young to have a draft, although the opposite is occurring.  The rumor of the keg party is spreading around all of the underage beach houses in the area.  Small amounts of beer are easy to get, but the presence of the keg signifies a real party.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>With the party raging on the deck, Dave heads into the kitchen for a break.  He sits down at the table and starts talking with Richey.  Richey tells him that he is going to start an investment business.  He has a connection in the savings and loan industry and to an investment bank.  He thinks he would be good at selling bonds.  He has family connections to the mortgage industry and says that it is a gold mine.  The industry is able to print money and he wants a cut.  With his connection, he has a chance to become a bond salesman.  Otherwise he would have to go to some expensive Ivy League school and graduate at the top of the class.</p>
+<p>Richey asks Dave what he wants to do.  Dave says the he is not sure.  He was thinking about Journalism but doesn’t want to be a Journalist.  He is thinking about Engineering, but can’t imagine being stuck in some office the rest of his life.  He says whatever he does, it has to be creative and constructive.  He wants to build things.  Money is not important to him.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Melissa and Cindy who have been hanging out in the upstairs living room decide to venture out onto the deck.  A guy from another school begins to talk with them and then starts to focus in on Cindy.  Melissa says she has to go to the bathroom and leaves them on the deck.  Cindy ends up in a dark corner slow dancing with the guy.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Alexander is on the deck and sees Brandy flirting with some other guy.  He stands there and watches but does nothing.  Inside him, he feels betrayed.  For a moment, he thought there was something between him and Brandy.  She was smiling at him and laughing at his jokes, now she is doing the same with some other guy.</p>
+<p>Something comes over him, he sees himself walking down the stairs.  The next thing he realizes, he is in the empty pool room talking on the phone with Justin.   He tells Justin that Brandy is about to hook up with some guy.  After saying this he hangs up and smiles.  After a moment, he realizes that something bad is about to happen, so he starts the walk back to his beach house, anticipating others may soon follow.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>One of the girls from Mike’s house ends up in Melissa and Cindy’s room and dances around in her bra.  The girls rush and try to calm her.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Justin comes back to the house with a group of football playing guys from another school who are friends with his younger brother who just graduated.   Dave is inside the kitchen area sharing a beer with Steve, Melissa, and Brandy.  Tina is on the patio and sees them and becomes fearful.  She tells the guys that he may be here to hurt Brandy.</p>
+<p>The guys on the patio yell down to Justin telling him that they are not invited.  Justin stops and is talking with the other guys, but someone yells “Beer Man!  Beer Man!”  This enrages Justin who thinks they are making fun of him.</p>
+<p>Dave comes out on the patio, hears the yelling and sees Justin and his group running towards the stairs.  Dave turns back and looks at Brandy and the girls who see his fear.  I say “come on” and they run out of the top floor.  Tina runs after us.</p>
+<p>We run to the stairs on the other side of the house and then down to the street.  Still running, I look back to see the entire deck exploding with fists.  We don’t have much time, we need to go somewhere.  Without thinking, we are heading towards Father Shelton’s place.  Something tells me this is not a safe place.  “No, we need to go somewhere else.”  I think Justin knows about Father Shelton’s beach house, so it doesn’t seem safe to go there.</p>
+<p>We slow our pace to a fast walk.  Cindy is weeping and Melissa has her arm around her almost pushing her to continue.  I start to realize what is going on, and we’ve already crossed the main street.  We can either head to Alexander’s or Mike’s place.  My gut reaction is Mike’s, since Alexander’s has dis-invited almost half of us.</p>
+<p>We hear sirens in the distance and can see flashing lights coming towards us.  We stop for a moment and all turn back to look.  Frozen in disbelief, we see a line of police cars turning onto the street of the girl’s beach house.  I turn and say “Let’s go.”  We turn to head towards Mike’s house and Brandy who has to this point appeared stoic begins to break down.</p>
+<p>“I”  She stops and bends over.  Crying.  Weeping.  “I”  The whole of her body heaving.</p>
+<p>Steve turns his head, not understanding.  “Dude.”</p>
+<p>Tina wants to counsel her but Brandy continues again.  Heaving,  Brandy, who hasn’t had a drink that night, heaving.</p>
+<p>I see Tina - a sharp pain in my neck.  I walk over to her.  She looks ready to break.  I try to be with her, but she moves.  She looks at me and then takes a breath - her friend in pain.  She loves her friend.  She walks over to her.</p>
+<p>“Brandy, we’re almost there.  Just a little bit more and we will be there.”  She helps Brandy to her feet and walks for her.</p>
+<p>“I.  You don’t understand.”  Brandy sobbing and walking.  “I invited Justin.  He’s my friend.  I invited him.”</p>
+</section>
+<section class="chapter" id="chapter-09" data-label="Chapter 9: THURSDAY MORNING - THE AFTERMATH">
+<span class="ch-label">Chapter 9</span>
+<h1 class="chapter-title">THURSDAY MORNING - THE AFTERMATH</h1>
+<p class="meta">&quot;Sometimes it takes a good fall to really know where you stand.&quot; - Hayley Williams</p>
+<p>Morning after the keg party disaster. I wake up on Mike&#x27;s couch with a crick in my neck and the taste of regret.</p>
+<p>Bright sunlight through the windows feels like an accusation. Highlighting every mistake from last night.</p>
+<p>Richey&#x27;s crashed on the floor beside me. Still fully dressed. Snoring softly. Few other refugees scattered around. Aaron on another couch. Steve curled up in a chair too small for him.</p>
+<p>Last night comes back in waves. The fight. The sirens. Our panicked escape. Brandy breaking down on the sidewalk. Our perfect week imploding.</p>
+<p>I check my watch. Almost ten. Wonder if anyone&#x27;s been back to the beach house. If there&#x27;s anything left to salvage.</p>
+<p>&quot;Dude, you awake?&quot; Richey&#x27;s voice is hoarse.</p>
+<p>&quot;Unfortunately.&quot;</p>
+<p>He sits up. Rubbing his eyes. &quot;Man, what a cluster. You think everyone&#x27;s okay?&quot;</p>
+<p>&quot;I hope so. Have you seen Tina or any of the girls?&quot;</p>
+<p>&quot;Nah. Mike said they went to that motel down the street. Didn&#x27;t want to stay at the house after... you know.&quot;</p>
+<p>The house. Wonder what condition it&#x27;s in. Whether Tina&#x27;s mom knows. Whether we&#x27;re all in serious trouble.</p>
+<p>&quot;I should check on them.&quot;</p>
+<p>&quot;Want company?&quot;</p>
+<p>&quot;Yeah.&quot;</p>
+<p>We walk the six blocks in silence. Morning&#x27;s beautiful. Clear sky. Gentle breeze. Makes the contrast with our mood worse. This should have been our last full day. Victory lap before everyone went home with lifetime memories.</p>
+<p>Instead, we&#x27;re walking toward maybe a crime scene.</p>
+<p>Beach house looks worse in daylight. Deck littered with broken glass and overturned furniture. Someone spray-painted &quot;PARTY ON&quot; on the side wall. The keg&#x27;s gone. Police probably took it. Empty beer cans everywhere.</p>
+<p>&quot;Jesus,&quot; Richey mutters. &quot;Tina&#x27;s mom is going to kill her.&quot;</p>
+<p>Front door opens as we approach. Tina emerges. Still wearing last night&#x27;s dress but wrinkled and stained. Hair&#x27;s a mess. Looks like she&#x27;s been crying.</p>
+<p>&quot;Dave! Thank God.&quot; She runs over and hugs me tight. &quot;I was so worried about you guys.&quot;</p>
+<p>&quot;We&#x27;re fine. What about you? And Brandy?&quot;</p>
+<p>&quot;Brandy&#x27;s...&quot; Tina pauses. Looks back at the house. &quot;She&#x27;s not great. Keeps blaming herself for what happened with Justin.&quot;</p>
+<p>&quot;Where is she?&quot;</p>
+<p>&quot;Upstairs trying to clean up. But Dave, we have a bigger problem.&quot; Her voice drops to a whisper. &quot;The owner showed up an hour ago. She&#x27;s furious. My mom told her it would just be family, not teenagers having parties.&quot;</p>
+<p>My stomach sinks. &quot;What did she say?&quot;</p>
+<p>&quot;She wants everyone out by noon. And she&#x27;s talking damages. Possibly lawyers.&quot; Tina&#x27;s eyes fill with tears again. &quot;I don&#x27;t know what to tell my mom. This is going to ruin everything.&quot;</p>
+<p>I look around at the destruction. Try to think of something helpful. But the truth is, there might not be a way to fix this. Some mistakes are too big. Too public. Too permanent.</p>
+<p>&quot;Let&#x27;s focus on what we can control,&quot; I say finally. &quot;We can clean up. Get everyone out safely. Figure out the rest later.&quot;</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Next two hours, we work in silence. Picking up debris. Trying to make the house presentable. Brandy comes downstairs eventually. Pale and quiet. Helps without saying much. Amy, Melissa, and Cindy arrive from wherever they spent the night. Look shell-shocked but determined to help.</p>
+<p>Alexander shows up around noon. Surveys the damage with obvious guilt.</p>
+<p>&quot;I&#x27;m sorry,&quot; he says to the group. &quot;This is partially my fault. I shouldn&#x27;t have called Justin.&quot;</p>
+<p>Everyone turns to look at him. Brandy stops cleaning and stares.</p>
+<p>&quot;You called Justin?&quot; Her voice is barely a whisper.</p>
+<p>&quot;I thought... I don&#x27;t know what I thought. I was jealous and stupid. Made everything worse.&quot; He runs his hand through his hair. &quot;I wanted to apologize and offer to help pay for damages.&quot;</p>
+<p>Silence stretches uncomfortably. Finally, Brandy nods.</p>
+<p>&quot;Thank you for telling the truth. But this isn&#x27;t all your fault. I invited him. I thought we could be friends. I was naive about what that would mean to him.&quot;</p>
+<p>&quot;Still, I made it worse.&quot;</p>
+<p>Later, after we&#x27;ve done what we can with cleanup and everyone&#x27;s scattered, I find myself walking back toward the beach house with Brandy. She&#x27;s been quiet all morning. Processing everything.</p>
+<p>&quot;Dave,&quot; she says as we sit on the seawall. Looking at the ocean. &quot;Can I ask you something?&quot;</p>
+<p>&quot;Of course.&quot;</p>
+<p>&quot;Do you think I&#x27;m a terrible person?&quot;</p>
+<p>&quot;What? No. Why would you think that?&quot;</p>
+<p>&quot;Because I broke up with someone who loved me. Then I flirted with other guys right in front of him. Then I acted surprised when he got upset.&quot; She picks up a shell. Turns it over in her hands. &quot;Maybe I wanted him to get jealous. Maybe I wanted to hurt him because he&#x27;d been hurting me.&quot;</p>
+<p>I think about this carefully. &quot;Brandy, you&#x27;re eighteen. You&#x27;re supposed to be figuring out what you want and who you are. That&#x27;s messy sometimes.&quot;</p>
+<p>&quot;But people got hurt. You guys had to run from a fight. The house got trashed.&quot;</p>
+<p>&quot;And you learned something about yourself, didn&#x27;t you?&quot;</p>
+<p>She looks at me sideways. &quot;What do you mean?&quot;</p>
+<p>&quot;You learned that you don&#x27;t want to be in a relationship where you feel trapped. You learned that breaking up with someone doesn&#x27;t automatically make you friends. You learned that other people have feelings that get complicated when yours do.&quot;</p>
+<p>&quot;Those are painful lessons.&quot;</p>
+<p>&quot;The most important ones usually are.&quot;</p>
+<p>We sit quietly. Watching the waves. Finally, she speaks again.</p>
+<p>&quot;Dave, what you said last night about not knowing what will happen with Justin... that terrifies me.&quot;</p>
+<p>&quot;Why?&quot;</p>
+<p>&quot;Because for three years, I knew exactly what my life was going to look like. Graduate. Go to college with Justin. Get married. Have kids. Become a teacher. It was all planned out.&quot;</p>
+<p>&quot;And now?&quot;</p>
+<p>&quot;Now I have no idea. And that&#x27;s both exciting and terrifying.&quot;</p>
+<p>&quot;Welcome to being eighteen,&quot; I say. She laughs for the first time since last night.</p>
+<p>&quot;You know what&#x27;s funny? This week, even with everything that went wrong, has been the first time I felt like myself in years. Not Justin&#x27;s girlfriend. Not my parents&#x27; good daughter. Just... me.&quot;</p>
+<p>&quot;Then maybe it was worth it.&quot;</p>
+<p>She considers this. &quot;Even if I never talk to Justin again? Even if I hurt him and lost one of my oldest friends?&quot;</p>
+<p>&quot;I don&#x27;t know. That&#x27;s something you&#x27;ll have to decide. But Brandy, relationships shouldn&#x27;t make you disappear. If being with someone means you can&#x27;t be yourself, maybe it&#x27;s not the right relationship.&quot;</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>That evening, most of our group ends up at Mike&#x27;s house again. Subdued gathering. Not really a party. More like a wake for the beach week we&#x27;d all imagined.</p>
+<p>But something interesting happens as the night goes on. Without the pressure of the big party, without the drama and chaos, we start to connect again. Real conversations. Genuine laughter. The intimacy that made the first part of the week special.</p>
+<p>I find myself talking to Vanessa. A girl from school I&#x27;d barely noticed before. She&#x27;s smart and funny in a quiet way. Talking to her feels natural. Easy.</p>
+<p>&quot;You seem different than you did at school,&quot; she says.</p>
+<p>&quot;Different how?&quot;</p>
+<p>&quot;More... present, I guess. Like you&#x27;re actually here instead of just observing everything from the outside.&quot;</p>
+<p>I think about this. &quot;Maybe I am different. Or maybe I&#x27;m finally becoming who I actually am.&quot;</p>
+<p>&quot;I like it,&quot; she says. Something in her smile makes me think this week might not be completely over.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>Friday comes with the strange realization that beach week is ending not with a bang but with a whimper. Most people packing up. Heading home early. Processing what happened. The grand finale we&#x27;d been building toward already came and went in the most chaotic way possible.</p>
+<p>But Alexander surprises everyone. Invites whoever wants to come to his family&#x27;s beach house for one last gathering. Not a party. Just a chance to say goodbye properly.</p>
+<p>I almost don&#x27;t go. Part of me wants to just head home. Put this whole experience behind me. Start getting ready for college and the next chapter. But something tells me that would be a mistake.</p>
+<p>So Friday evening finds me sitting on Alexander&#x27;s deck with what&#x27;s left of our group. Brandy&#x27;s there. Looking more like herself than all week. Tina sits beside me. Her hand occasionally brushing mine in a way that might be accidental or might not be.</p>
+<p>Richey&#x27;s on the couch. Clearly high but in a mellow, philosophical mood. &quot;You know what I realized?&quot; he says. &quot;This week wasn&#x27;t about the parties or the drinking or any of that stuff. It was about figuring out who we are when nobody&#x27;s telling us who to be.&quot;</p>
+<p>&quot;Deep, man,&quot; Aaron says sarcastically. But not unkindly.</p>
+<p>&quot;No, seriously. Think about it. At school, we&#x27;re all playing roles. The good student. The athlete. The popular girl. Whatever. But here, away from all that, we got to just be people.&quot;</p>
+<p>I look around at the group. This random collection of classmates who somehow became friends. Who shared something real despite all the chaos and drama.</p>
+<p>&quot;So who are you?&quot; Melissa asks Richey. &quot;When nobody&#x27;s telling you who to be?&quot;</p>
+<p>&quot;I&#x27;m someone who wants to build something. Not just make money - though I want that too - but create something that matters.&quot; He looks at me. &quot;What about you, Dave?&quot;</p>
+<p>&quot;I&#x27;m someone who&#x27;s tired of watching life happen to other people,&quot; I say. Surprising myself with the honesty. &quot;I want to be part of the story, not just writing about it from the sidelines.&quot;</p>
+<p>The conversation continues like this. Each of us trying to say what we learned about ourselves this week. It&#x27;s the kind of deep, meaningful dialogue I&#x27;ll remember long after the party details fade.</p>
+<p>Later, as the evening winds down and people start to leave, I realize I need to do one more thing before beach week officially ends.</p>
+<p>&quot;Tina,&quot; I say as we&#x27;re gathering our things. &quot;Can I walk you back to your house?&quot;</p>
+<p>&quot;Of course.&quot;</p>
+<p>We walk the few blocks in comfortable silence. Both processing the end of something significant. When we reach her house, she turns to face me.</p>
+<p>&quot;Dave, this week...&quot;</p>
+<p>&quot;I know.&quot;</p>
+<p>&quot;No, let me say this. This week you became one of my favorite people. Not because of anything romantic or dramatic. Because you reminded me that it&#x27;s okay to be thoughtful and genuine in a world that rewards performance and games.&quot;</p>
+<p>&quot;Tina...&quot;</p>
+<p>&quot;I don&#x27;t know what happens next. We&#x27;re all going to college. Starting new lives. But I want you to know that knowing you this week made me a better person.&quot;</p>
+<p>Before I can respond, she reaches into her bag and pulls out a pair of sneakers. My sneakers that her brother borrowed on Monday.</p>
+<p>&quot;These are yours,&quot; she says with a smile. &quot;Though I think you&#x27;ve outgrown them this week.&quot;</p>
+<p>As I walk home, carrying my old shoes and thinking about everything that happened, I realize Richey was right. This week wasn&#x27;t about the parties or the drama or even the relationships. It was about discovering that I&#x27;m braver than I thought. More capable of connection than I believed. Ready for whatever comes next.</p>
+<p>Beach week is over. But the person I became during it is just getting started.</p>
+</section>
+<section class="chapter" id="chapter-10" data-label="Chapter 10: LIGHTS, CAMERA, BEACH WEEK!">
+<span class="ch-label">Chapter 10</span>
+<h1 class="chapter-title">LIGHTS, CAMERA, BEACH WEEK!</h1>
+<p class="meta">&quot;The only thing better than a good story is a story that gets completely out of hand.&quot; – Not Aristotle, but maybe someone just as cool</p>
+<p>A year after Beach Week, Dave is sitting in his college dorm when he gets a call from Tina. She’s laughing so hard she can barely speak. “You’re not going to believe this, but Hollywood wants to make a movie about Beach Week!”</p>
+<p>Within days, the whole group is swept up in a whirlwind of phone calls, contracts, and interviews. The studio doesn’t just want the main crew—they want everyone. Amy’s little brother, the waffle house waitress, even Alexander’s dad. Anyone who ever heard a rumor about Beach Week is invited to share their version.</p>
+<p>The interviews are chaos. Brandy claims she saved the town from a hurricane. Richey insists he was abducted by aliens. Melissa and Cindy are convinced there was a secret government experiment in the basement. Alexander’s dad tries to negotiate for a starring role as himself, but the producers cast a famous action star instead.</p>
+<p>The scriptwriters take every wild story and mash them together. The final movie is a fever dream: Dave is played by a muscle-bound action hero who surfs, sings, and saves the day. Tina is a pop star with a pet dolphin. There are car chases, musical numbers, a talking dog, and a dramatic love triangle involving the waffle house waitress, the police chief, and a mysterious European prince.</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>At the red carpet premiere, the real Beach Week crew arrives in a rented limo, barely able to contain their laughter. The movie is so over-the-top that even the people who didn’t go to Beach Week are given starring roles. The audience cheers as the group on screen defeats a band of jewel thieves, wins a national dance contest, and uncovers a treasure buried under the beach house.</p>
+<p>After the credits roll, the group sneaks out of the afterparty and heads to the real beach. They sit in the sand, passing around a bag of chips, laughing about the movie’s wildest moments.</p>
+<p>Dave looks around at his friends—some old, some new, all changed by the real Beach Week. “Maybe the world will never know what really happened,” he says. “But we do. And that’s enough.”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>The waves crash, the stars shine, and for one last time, the legend of Beach Week grows a little bigger.</p>
+<p>But the night isn’t over. As they sit in the sand, the group starts debating which part of the movie was the most ridiculous.</p>
+<p>“Definitely the part where I single-handedly stopped the hurricane with my hair dryer,” Brandy says, tossing popcorn at Richey.</p>
+<p>Richey grins. “No way. The Gulf Breeze alien abduction scene was Oscar-worthy. I still can’t believe they did that probe scene.”</p>
+<p>Melissa and Cindy are doubled over laughing. “We never even went in the basement!” Melissa says. “But I kind of wish there had been a secret government lab.”</p>
+<p>Tina, still giggling, adds, “I want a pet dolphin now. And a Grammy.”</p>
+<p>Alexander, who’s been quiet, finally speaks up. “I’m just glad they didn’t use my real hair. That wig was a crime against humanity.”</p>
+<p>Even Amy’s little brother gets a moment: “I was in the movie for five seconds and still got more screen time than the police chief!”</p>
+<p>They go around the circle, each sharing their favorite absurdity. The talking dog. The musical number on jet skis. The moment when Dave’s character delivers a dramatic monologue about the meaning of friendship while skydiving into a pool party.</p>
+<p>Finally, Dave raises his soda can. “To Beach Week—the real one. No aliens, no hurricanes, no treasure. Just us.”</p>
+<p>Everyone joins in, their voices echoing over the waves. “To Beach Week!”</p>
+<p class="scene-break" aria-label="Scene break">Ξ Ξ Ξ</p>
+<p>As the laughter fades and the group leans back to watch the stars, Dave says, “Maybe the movie got everything wrong, but it got one thing right.  You are the people who made it unforgettable.”  He waits for a second and then says, “Also, Tina’s Mom.”</p>
+<p>All heads turn towards Dave surprised.</p>
+<p>“She lied to the realtor to get the beach house.”</p>
+<p>Tina laughs and says, “She also was guilted into getting the keg, which got use kicked out, and my favorite bikni.”</p>
+<p>The camera pans up to the night sky, the sound of waves and laughter blending together, as the legend of Beach Week lives on—bigger, wilder, and more ridiculous than ever.</p>
+<p>THE END</p>
+</section>
+</main>
+
+<div class="reading-nav">
+  <button type="button" data-reading-prev>&#8592; Start</button>
+  <span class="reading-progress-text" data-reading-progress>Section 1 of 1</span>
+  <button type="button" data-reading-next>End &#8594;</button>
+</div>
+
+<button id="backToTop" type="button" aria-label="Back to top">&#8593;</button>
+
+<script>
+(function () {
+  var SECTIONS = [{"id": "title-page", "label": "Beach Week"}, {"id": "chapter-01", "label": "Chapter 1: END OF SCHOOL"}, {"id": "chapter-02", "label": "Chapter 2: THE LOFT"}, {"id": "chapter-03", "label": "Chapter 3: DAY TWO"}, {"id": "chapter-04", "label": "Chapter 4: GIRL’S BEACH HOUSE"}, {"id": "chapter-05", "label": "Chapter 5: THE FIRST NIGHT"}, {"id": "chapter-06", "label": "Chapter 6: TUESDAY MORNING"}, {"id": "chapter-07", "label": "Chapter 7: WEDNESDAY MORNING"}, {"id": "chapter-08", "label": "Chapter 8: END OF THE BEGINNING"}, {"id": "chapter-09", "label": "Chapter 9: THURSDAY MORNING - THE AFTERMATH"}, {"id": "chapter-10", "label": "Chapter 10: LIGHTS, CAMERA, BEACH WEEK!"}];
+  var THEMES = ["classic-serif","modern-minimalist","dark-academic","warm-paperback","technical-manual","editorial-magazine"];
+  var html = document.documentElement;
+  var currentIndex = 0;
+  var suppressObserver = false;
+  var synth = window.speechSynthesis;
+
+  function applyTheme(t) {
+    if (THEMES.indexOf(t) === -1) t = "classic-serif";
+    html.setAttribute("data-theme", t);
+    try { localStorage.setItem("book-theme", t); } catch (e) {}
+    document.querySelectorAll("#themeMenu button").forEach(function (b) {
+      b.setAttribute("aria-current", b.getAttribute("data-theme-choice") === t ? "true" : "false");
+    });
+  }
+
+  function applyMode(m) {
+    m = (m === "paged") ? "paged" : "scroll";
+    html.setAttribute("data-mode", m);
+    try { localStorage.setItem("book-mode", m); } catch (e) {}
+    var btn = document.getElementById("modeToggle");
+    if (btn) btn.textContent = m === "paged" ? "\uD83D\uDCD6 Reading Mode: On" : "\uD83D\uDCD6 Reading Mode: Off";
+    if (m === "paged") showSection(currentIndex, false);
+  }
+
+  function indexOf(id) {
+    for (var i = 0; i < SECTIONS.length; i++) if (SECTIONS[i].id === id) return i;
+    return -1;
+  }
+
+  function updateNavUI(index) {
+    currentIndex = index;
+    var sec = SECTIONS[index];
+    document.querySelectorAll("[data-nav-link]").forEach(function (a) {
+      var isActive = a.getAttribute("href") === "#" + sec.id;
+      a.classList.toggle("active", isActive);
+      a.setAttribute("aria-current", isActive ? "true" : "false");
+    });
+    var pct = Math.round(((index + 1) / SECTIONS.length) * 100);
+    var bar = document.getElementById("progressBar");
+    if (bar) bar.style.width = pct + "%";
+    var prevButtons = document.querySelectorAll("[data-reading-prev]");
+    var nextButtons = document.querySelectorAll("[data-reading-next]");
+    var progressTexts = document.querySelectorAll("[data-reading-progress]");
+    prevButtons.forEach(function (prevBtn) {
+      var prev = SECTIONS[index - 1];
+      prevBtn.disabled = !prev;
+      prevBtn.textContent = prev ? ("\u2190 " + prev.label) : "\u2190 Start";
+    });
+    nextButtons.forEach(function (nextBtn) {
+      var next = SECTIONS[index + 1];
+      nextBtn.disabled = !next;
+      nextBtn.textContent = next ? (next.label + " \u2192") : "End \u2192";
+    });
+    progressTexts.forEach(function (progressText) {
+      progressText.textContent = "Section " + (index + 1) + " of " + SECTIONS.length;
+    });
+  }
+
+  function showSection(index, scrollToTopOfMain) {
+    var sec = SECTIONS[index];
+    if (!sec) return;
+    document.querySelectorAll("main > section").forEach(function (s) {
+      s.classList.toggle("current-section", s.id === sec.id);
+    });
+    if (scrollToTopOfMain !== false) window.scrollTo(0, 0);
+    updateNavUI(index);
+  }
+
+  function updateReadAloudButton(isSpeaking) {
+    var btn = document.getElementById("readAloudBtn");
+    if (!btn) return;
+    btn.setAttribute("aria-pressed", isSpeaking ? "true" : "false");
+    btn.textContent = isSpeaking ? "⏹ Stop Reading" : "🔊 Read Aloud";
+  }
+
+  function stopReadAloud() {
+    if (synth) synth.cancel();
+    if (window._ralHighlight) { window._ralHighlight.classList.remove("reading-aloud"); window._ralHighlight = null; }
+    updateReadAloudButton(false);
+  }
+
+  function readAloudCurrentSection() {
+    if (!synth) return;
+    synth.cancel();
+    var sec = SECTIONS[currentIndex];
+    var el = document.getElementById(sec.id);
+    if (!el) return;
+
+    // Build block map: each text-bearing element with its char offset in the full string
+    var blockEls = el.querySelectorAll("p, h1, h2, h3, h4, li, blockquote");
+    var blocks = [];
+    var fullText = "";
+    blockEls.forEach(function(b) {
+      var t = b.textContent.replace(/\s+/g, " ").trim();
+      if (!t) return;
+      blocks.push({ el: b, start: fullText.length, end: fullText.length + t.length });
+      fullText += t + " ";
+    });
+    if (!fullText.trim()) return;
+
+    var utter = new SpeechSynthesisUtterance(fullText);
+
+    function highlightBlock(charIndex) {
+      for (var i = 0; i < blocks.length; i++) {
+        if (charIndex >= blocks[i].start && charIndex < blocks[i].end) {
+          if (window._ralHighlight !== blocks[i].el) {
+            if (window._ralHighlight) window._ralHighlight.classList.remove("reading-aloud");
+            blocks[i].el.classList.add("reading-aloud");
+            window._ralHighlight = blocks[i].el;
+            blocks[i].el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          }
+          break;
+        }
+      }
+    }
+
+    utter.onboundary = function(e) {
+      if (e.name === "word" || e.name === "sentence") highlightBlock(e.charIndex);
+    };
+    utter.onend = function () {
+      if (window._ralHighlight) { window._ralHighlight.classList.remove("reading-aloud"); window._ralHighlight = null; }
+      updateReadAloudButton(false);
+    };
+    utter.onerror = function () {
+      if (window._ralHighlight) { window._ralHighlight.classList.remove("reading-aloud"); window._ralHighlight = null; }
+      updateReadAloudButton(false);
+    };
+    synth.speak(utter);
+    updateReadAloudButton(true);
+  }
+
+  function goTo(index, opts) {
+    opts = opts || {};
+    if (index < 0 || index >= SECTIONS.length) return;
+    stopReadAloud();
+    var sec = SECTIONS[index];
+    suppressObserver = true;
+    if (html.getAttribute("data-mode") === "paged") {
+      showSection(index, true);
+      history.pushState(null, "", "#" + sec.id);
+    } else {
+      history.pushState(null, "", "#" + sec.id);
+      var el = document.getElementById(sec.id);
+      if (el) el.scrollIntoView({ behavior: opts.smooth === false ? "auto" : "smooth", block: "start" });
+      updateNavUI(index);
+    }
+    window.setTimeout(function () { suppressObserver = false; }, 700);
+  }
+
+  function goToId(id, opts) {
+    var idx = indexOf(id);
+    if (idx !== -1) goTo(idx, opts);
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Theme picker
+    var themeMenu = document.getElementById("themeMenu");
+    var themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", function () {
+      themeMenu.classList.toggle("open");
+      themeToggle.setAttribute("aria-expanded", themeMenu.classList.contains("open") ? "true" : "false");
+    });
+    document.querySelectorAll("#themeMenu button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        applyTheme(b.getAttribute("data-theme-choice"));
+        themeMenu.classList.remove("open");
+      });
+    });
+    document.addEventListener("click", function (e) {
+      if (!document.getElementById("themePicker").contains(e.target)) themeMenu.classList.remove("open");
+    });
+    applyTheme(html.getAttribute("data-theme") || "classic-serif");
+
+    // Reading mode toggle
+    var modeToggle = document.getElementById("modeToggle");
+    modeToggle.addEventListener("click", function () {
+      applyMode(html.getAttribute("data-mode") === "paged" ? "scroll" : "paged");
+    });
+    applyMode(html.getAttribute("data-mode") || "paged");
+
+    // TOC open/close (mobile + off-canvas themes)
+    var toc = document.getElementById("toc");
+    var tocToggle = document.getElementById("tocToggle");
+    var overlay = document.getElementById("tocOverlay");
+    function closeToc() { toc.classList.remove("open"); overlay.classList.remove("open"); }
+    function openToc() { toc.classList.add("open"); overlay.classList.add("open"); }
+    tocToggle.addEventListener("click", function () {
+      toc.classList.contains("open") ? closeToc() : openToc();
+    });
+    overlay.addEventListener("click", closeToc);
+
+    // TOC link clicks: use goTo so both modes + progress bar stay in sync
+    document.querySelectorAll("[data-nav-link]").forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        goToId(a.getAttribute("href").slice(1));
+        closeToc();
+      });
+    });
+
+    // Prev/Next buttons
+    document.querySelectorAll("[data-reading-prev]").forEach(function (button) {
+      button.addEventListener("click", function () { goTo(currentIndex - 1); });
+    });
+    document.querySelectorAll("[data-reading-next]").forEach(function (button) {
+      button.addEventListener("click", function () { goTo(currentIndex + 1); });
+    });
+
+    // Keyboard navigation
+    document.addEventListener("keydown", function (e) {
+      var tag = (document.activeElement && document.activeElement.tagName) || "";
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (html.getAttribute("data-mode") !== "paged") return;
+      if (e.key === "ArrowRight" || e.key === "]") { goTo(currentIndex + 1); }
+      else if (e.key === "ArrowLeft" || e.key === "[") { goTo(currentIndex - 1); }
+    });
+
+    // Read aloud (Web Speech API) — only shown when the browser supports it
+    var readAloudBtn = document.getElementById("readAloudBtn");
+    if (readAloudBtn && window.speechSynthesis && window.SpeechSynthesisUtterance) {
+      readAloudBtn.hidden = false;
+      readAloudBtn.addEventListener("click", function () {
+        if (synth.speaking) stopReadAloud(); else readAloudCurrentSection();
+      });
+    }
+
+    // Back to top
+    var backToTop = document.getElementById("backToTop");
+    window.addEventListener("scroll", function () {
+      backToTop.classList.toggle("visible", window.scrollY > window.innerHeight * 0.6);
+    });
+    backToTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+    // Restore initial section from hash (mode already applied above)
+    var startId = location.hash ? location.hash.slice(1) : "title-page";
+    var startIndex = indexOf(startId);
+    if (startIndex === -1) startIndex = 0;
+    if (html.getAttribute("data-mode") === "paged") {
+      showSection(startIndex, false);
+    } else {
+      updateNavUI(startIndex);
+      if (startIndex > 0) {
+        window.setTimeout(function () {
+          var el = document.getElementById(SECTIONS[startIndex].id);
+          if (el) el.scrollIntoView({ behavior: "auto", block: "start" });
+        }, 0);
+      }
+    }
+
+    // Track scroll position -> active TOC entry + progress bar (scroll mode only)
+    if ("IntersectionObserver" in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        if (suppressObserver || html.getAttribute("data-mode") === "paged") return;
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var idx = indexOf(entry.target.id);
+            if (idx !== -1) updateNavUI(idx);
+          }
+        });
+      }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+      document.querySelectorAll("main > section").forEach(function (s) { observer.observe(s); });
+    }
+
+    window.addEventListener("popstate", function () {
+      var id = location.hash ? location.hash.slice(1) : "title-page";
+      goToId(id, { smooth: false });
+    });
+  });
+})();
+</script>
+</body>
+</html>
